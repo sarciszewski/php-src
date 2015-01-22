@@ -114,7 +114,6 @@ if (ob_get_level()) echo "Not all buffers were deleted.\n";
 
 error_reporting(E_ALL);
 if (PHP_MAJOR_VERSION < 6) {
-	ini_set('magic_quotes_runtime',0); // this would break tests by modifying EXPECT sections
 	if (ini_get('safe_mode')) {
 		echo <<< SAFE_MODE_WARNING
 
@@ -236,10 +235,10 @@ $ini_overwrites = array(
 		'error_append_string=',
 		'auto_prepend_file=',
 		'auto_append_file=',
-		'magic_quotes_runtime=0',
 		'ignore_repeated_errors=0',
 		'precision=14',
 		'memory_limit=128M',
+		'log_errors_max_len=0',
 		'opcache.fast_shutdown=0',
 		'opcache.file_update_protection=0',
 	);
@@ -313,7 +312,7 @@ VALGRIND    : " . ($leak_check ? $valgrind_header : 'Not used') . "
 define('PHP_QA_EMAIL', 'qa-reports@lists.php.net');
 define('QA_SUBMISSION_PAGE', 'http://qa.php.net/buildtest-process.php');
 define('QA_REPORTS_PAGE', 'http://qa.php.net/reports');
-define('TRAVIS_CI' , (bool) getenv('TRAVIS_PHP_VERSION'));
+define('TRAVIS_CI' , (bool) getenv('TRAVIS'));
 
 function save_or_mail_results()
 {

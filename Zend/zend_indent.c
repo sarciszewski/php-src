@@ -2,10 +2,10 @@
    +----------------------------------------------------------------------+
    | Zend Engine                                                          |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1998-2014 Zend Technologies Ltd. (http://www.zend.com) |
+   | Copyright (c) 1998-2015 Zend Technologies Ltd. (http://www.zend.com) |
    +----------------------------------------------------------------------+
    | This source file is subject to version 2.00 of the Zend license,     |
-   | that is bundled with this package in the file LICENSE, and is        | 
+   | that is bundled with this package in the file LICENSE, and is        |
    | available through the world-wide-web at the following url:           |
    | http://www.zend.com/license/2_00.txt.                                |
    | If you did not receive a copy of the Zend license and are unable to  |
@@ -31,10 +31,10 @@
 #define zendleng LANG_SCNG(yy_leng)
 
 
-static void handle_whitespace(int *emit_whitespace)
+static void handle_whitespace(unsigned int *emit_whitespace)
 {
 	unsigned char c;
-	int i;
+	unsigned int i;
 
 	for (c=0; c<128; c++) {
 		if (emit_whitespace[c]>0) {
@@ -47,7 +47,7 @@ static void handle_whitespace(int *emit_whitespace)
 }
 
 
-ZEND_API void zend_indent(TSRMLS_D)
+ZEND_API void zend_indent(void)
 {
 	zval token;
 	int token_type;
@@ -60,7 +60,7 @@ ZEND_API void zend_indent(TSRMLS_D)
 
 	/* highlight stuff coming back from zendlex() */
 	ZVAL_UNDEF(&token);
-	while ((token_type=lex_scan(&token TSRMLS_CC))) {
+	while ((token_type=lex_scan(&token))) {
 		switch (token_type) {
 			case T_INLINE_HTML:
 				zend_write((char*)LANG_SCNG(yy_text), LANG_SCNG(yy_leng));

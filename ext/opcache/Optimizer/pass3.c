@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | Zend OPcache                                                         |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1998-2014 The PHP Group                                |
+   | Copyright (c) 1998-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -53,7 +53,7 @@
 	}										\
 	jmp_hitlist[jmp_hitlist_count++] = ZEND_OP2(&op_array->opcodes[target]).opline_num;
 
-void zend_optimizer_pass3(zend_op_array *op_array TSRMLS_DC)
+void zend_optimizer_pass3(zend_op_array *op_array)
 {
 	zend_op *opline;
 	zend_op *end = op_array->opcodes + op_array->last;

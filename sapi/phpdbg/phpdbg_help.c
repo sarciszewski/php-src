@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 5                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2014 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -41,11 +41,11 @@ const phpdbg_command_t phpdbg_help_commands[] = {
 };  /* }}} */
 
 /* {{{ pretty_print.  Formatting escapes and wrapping text in a string before printing it. */
-void pretty_print(char *text TSRMLS_DC)
+void pretty_print(char *text)
 {
 	char *new, *p, *q;
 
-	const char  *prompt_escape = phpdbg_get_prompt(TSRMLS_C);
+	const char  *prompt_escape = phpdbg_get_prompt();
 	unsigned int prompt_escape_len = strlen(prompt_escape);
 	unsigned int prompt_len = strlen(PHPDBG_G(prompt)[0]);
 
@@ -53,7 +53,7 @@ void pretty_print(char *text TSRMLS_DC)
 	const char  *bold_off_escape = PHPDBG_G(flags) & PHPDBG_IS_COLOURED ? "\033[0m" : "";
 	unsigned int bold_escape_len = strlen(bold_on_escape);
 
-	unsigned int term_width = phpdbg_get_terminal_width(TSRMLS_C);
+	unsigned int term_width = phpdbg_get_terminal_width();
 	unsigned int size = 0;
 
 	int in_bold = 0;
@@ -142,16 +142,16 @@ void pretty_print(char *text TSRMLS_DC)
 }  /* }}} */
 
 /* {{{ summary_print.  Print a summary line giving, the command, its alias and tip */
-void summary_print(phpdbg_command_t const * const cmd TSRMLS_DC)
+void summary_print(phpdbg_command_t const * const cmd)
 {
 	char *summary;
 	spprintf(&summary, 0, "Command: **%s**  Alias: **%c**  **%s**\n", cmd->name, cmd->alias, cmd->tip);
-	pretty_print(summary TSRMLS_CC);
+	pretty_print(summary);
 	efree(summary);
 }
 
 /* {{{ get_help. Retries and formats text from the phpdbg help text table */
-static char *get_help(const char * const key TSRMLS_DC)
+static char *get_help(const char * const key)
 {
 	phpdbg_help_text_t *p;
 
@@ -180,7 +180,7 @@ static int get_command(
 	const char *key, size_t len,      /* pointer and length of key */
 	phpdbg_command_t const **command, /* address of first matching command  */
 	phpdbg_command_t const * commands /* command table to be scanned */
-	TSRMLS_DC)
+	)
 {
 	const phpdbg_command_t *c;
 	unsigned int num_matches = 0;
@@ -215,26 +215,26 @@ PHPDBG_COMMAND(help) /* {{{ */
 	int n;
 
 	if (!param || param->type == EMPTY_PARAM) {
-		pretty_print(get_help("overview!" TSRMLS_CC) TSRMLS_CC);
+		pretty_print(get_help("overview!"));
 		return SUCCESS;
 	}
 
 	if (param && param->type == STR_PARAM) {
-	    n = get_command(param->str, param->len, &cmd, phpdbg_prompt_commands TSRMLS_CC);
+	    n = get_command(param->str, param->len, &cmd, phpdbg_prompt_commands);
 
 		if (n==1) {
-			summary_print(cmd TSRMLS_CC);
-			pretty_print(get_help(cmd->name TSRMLS_CC) TSRMLS_CC);
+			summary_print(cmd);
+			pretty_print(get_help(cmd->name));
 			return SUCCESS;
 
 		} else if (n>1) {
 			if (param->len > 1) {
 				for (cmd=phpdbg_prompt_commands; cmd->name; cmd++) {
 					if (!strncmp(cmd->name, param->str, param->len)) {
-						summary_print(cmd TSRMLS_CC);
+						summary_print(cmd);
 					}
 				}
-				pretty_print(get_help("duplicate!" TSRMLS_CC) TSRMLS_CC);
+				pretty_print(get_help("duplicate!"));
 				return SUCCESS;
 			} else {
 				phpdbg_error("help", "type=\"ambiguousalias\" alias=\"%s\"", "Internal help error, non-unique alias \"%c\"", param->str[0]);
@@ -242,13 +242,13 @@ PHPDBG_COMMAND(help) /* {{{ */
 			}
 
 		} else { /* no prompt command found so try help topic */
-		    n = get_command( param->str, param->len, &cmd, phpdbg_help_commands TSRMLS_CC);
+		    n = get_command( param->str, param->len, &cmd, phpdbg_help_commands);
 
 			if (n>0) {
-				if (cmd->alias == 'a') {   /* help aliases executes a canned routine */ 
-					return cmd->handler(param TSRMLS_CC);
+				if (cmd->alias == 'a') {   /* help aliases executes a canned routine */
+					return cmd->handler(param);
 				} else {
-					pretty_print(get_help(cmd->name TSRMLS_CC) TSRMLS_CC);
+					pretty_print(get_help(cmd->name));
 					return SUCCESS;
 				}
 			}
@@ -285,7 +285,7 @@ PHPDBG_HELP(aliases) /* {{{ */
 	phpdbg_xml("</helpcommands>");
 
 	/* Print out aliases for help as this one comes last, with the added text on how aliases are used */
-	get_command("h", 1, &c, phpdbg_prompt_commands TSRMLS_CC);
+	get_command("h", 1, &c, phpdbg_prompt_commands);
 	phpdbg_writeln("aliasinfo", "alias=\"%c\" name=\"%s\" tip=\"%s\"", " %c     %-20s  %s\n", c->alias, c->name, c->tip);
 
 	phpdbg_xml("<helpaliases>");
@@ -300,7 +300,7 @@ PHPDBG_HELP(aliases) /* {{{ */
 
 	phpdbg_xml("</helpaliases>");
 
-	pretty_print(get_help("aliases!" TSRMLS_CC) TSRMLS_CC);
+	pretty_print(get_help("aliases!"));
 	return SUCCESS;
 } /* }}} */
 
@@ -320,7 +320,7 @@ PHPDBG_HELP(aliases) /* {{{ */
  * Also note the convention that help text not directly referenceable as a help param
  * has a key ending in !
  */
-#define CR "\n" 
+#define CR "\n"
 phpdbg_help_text_t phpdbg_help_text[] = {
 
 /******************************** General Help Topics ********************************/
@@ -332,7 +332,7 @@ phpdbg_help_text_t phpdbg_help_text[] = {
 "  **list**     list PHP source" CR
 "  **info**     displays information on the debug session" CR
 "  **print**    show opcodes" CR
-"  **frame**    select a stack frame and print a stack frame summary" CR 
+"  **frame**    select a stack frame and print a stack frame summary" CR
 "  **back**     shows the current backtrace" CR
 "  **help**     provide help on a topic" CR CR
 
@@ -412,10 +412,10 @@ phpdbg_help_text_t phpdbg_help_text[] = {
 "Debugger scripts can also be executed using the **source** command." CR CR
 
 "A script file can contain a sequence of valid debugger commands, comments and embedded PHP "
-"code. " CR CR 
+"code. " CR CR
 
 "Comment lines are prefixed by the **#** character.  Note that comments are only allowed in script "
-"files and not in interactive sessions." CR CR 
+"files and not in interactive sessions." CR CR
 
 "PHP code is delimited by the start and end escape tags **<:** and **:>**. PHP code can be used "
 "to define application context for a debugging session and also to extend the debugger by defining "
@@ -608,7 +608,7 @@ phpdbg_help_text_t phpdbg_help_text[] = {
 },
 
 {"exec",
-"The **exec** command sets the execution context, that is the script to be executed.  The " 
+"The **exec** command sets the execution context, that is the script to be executed.  The "
 "execution context must be defined either by executing the **exec** command or by using the "
 "**-e** command line option." CR CR
 

@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 5                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2014 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,	  |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -80,23 +80,23 @@ typedef struct {
 	HashTable watches;
 } phpdbg_watch_collision;
 
-void phpdbg_setup_watchpoints(TSRMLS_D);
+void phpdbg_setup_watchpoints(void);
 
 #ifndef _WIN32
-int phpdbg_watchpoint_segfault_handler(siginfo_t *info, void *context TSRMLS_DC);
+int phpdbg_watchpoint_segfault_handler(siginfo_t *info, void *context);
 #else
-int phpdbg_watchpoint_segfault_handler(void *addr TSRMLS_DC);
+int phpdbg_watchpoint_segfault_handler(void *addr);
 #endif
 
 void phpdbg_create_addr_watchpoint(void *addr, size_t size, phpdbg_watchpoint_t *watch);
 void phpdbg_create_zval_watchpoint(zval *zv, phpdbg_watchpoint_t *watch);
 
-int phpdbg_delete_var_watchpoint(char *input, size_t len TSRMLS_DC);
-int phpdbg_create_var_watchpoint(char *input, size_t len TSRMLS_DC);
+int phpdbg_delete_var_watchpoint(char *input, size_t len);
+int phpdbg_create_var_watchpoint(char *input, size_t len);
 
-int phpdbg_print_changed_zvals(TSRMLS_D);
+int phpdbg_print_changed_zvals(void);
 
-void phpdbg_list_watchpoints(TSRMLS_D);
+void phpdbg_list_watchpoints(void);
 
 void phpdbg_watch_efree(void *ptr);
 

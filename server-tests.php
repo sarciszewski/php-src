@@ -472,7 +472,6 @@ class testHarness {
 			'error_append_string'=>'',
 			'auto_prepend_file'=>'',
 			'auto_append_file'=>'',
-			'magic_quotes_runtime'=>'0',
 		);	
 	public $env = array();
 	public $info_params = array();
@@ -961,7 +960,7 @@ class testHarness {
 			if ($just_save_results || strlen(trim($user_input)) == 0 || strtolower($user_input[0]) == 'y') {
 				/*  
 				 * Collect information about the host system for our report
-				 * Fetch phpinfo() output so that we can see the PHP enviroment
+				 * Fetch phpinfo() output so that we can see the PHP environment
 				 * Make an archive of all the failed tests
 				 * Send an email
 				 */

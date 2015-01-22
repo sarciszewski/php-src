@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | Zend Engine                                                          |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1998-2014 Zend Technologies Ltd. (http://www.zend.com) |
+   | Copyright (c) 1998-2015 Zend Technologies Ltd. (http://www.zend.com) |
    +----------------------------------------------------------------------+
    | This source file is subject to version 2.00 of the Zend license,     |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -53,10 +53,10 @@ static const zend_uchar ZEND_GENERATOR_CURRENTLY_RUNNING = 0x1;
 static const zend_uchar ZEND_GENERATOR_FORCED_CLOSE      = 0x2;
 static const zend_uchar ZEND_GENERATOR_AT_FIRST_YIELD    = 0x4;
 
-void zend_register_generator_ce(TSRMLS_D);
-ZEND_API void zend_generator_create_zval(zend_execute_data *call, zend_op_array *op_array, zval *return_value TSRMLS_DC);
-ZEND_API void zend_generator_close(zend_generator *generator, zend_bool finished_execution TSRMLS_DC);
-ZEND_API void zend_generator_resume(zend_generator *generator TSRMLS_DC);
+void zend_register_generator_ce(void);
+ZEND_API void zend_generator_create_zval(zend_execute_data *call, zend_op_array *op_array, zval *return_value);
+ZEND_API void zend_generator_close(zend_generator *generator, zend_bool finished_execution);
+ZEND_API void zend_generator_resume(zend_generator *generator);
 
 END_EXTERN_C()
 

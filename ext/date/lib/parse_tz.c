@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2014 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -36,7 +36,7 @@
 #if (defined(__APPLE__) || defined(__APPLE_CC__)) && (defined(__BIG_ENDIAN__) || defined(__LITTLE_ENDIAN__))
 # if defined(__LITTLE_ENDIAN__)
 #  undef WORDS_BIGENDIAN
-# else 
+# else
 #  if defined(__BIG_ENDIAN__)
 #   define WORDS_BIGENDIAN
 #  endif
@@ -53,7 +53,7 @@ static void read_preamble(const unsigned char **tzf, timelib_tzinfo *tz)
 {
 	/* skip ID */
 	*tzf += 4;
-	
+
 	/* read BC flag */
 	tz->bc = (**tzf == '\1');
 	*tzf += 1;
@@ -106,7 +106,7 @@ static void read_transistions(const unsigned char **tzf, timelib_tzinfo *tz)
 		memcpy(cbuffer, *tzf, sizeof(unsigned char) * tz->timecnt);
 		*tzf += sizeof(unsigned char) * tz->timecnt;
 	}
-	
+
 	tz->trans = buffer;
 	tz->trans_idx = cbuffer;
 }
@@ -267,7 +267,7 @@ static int seek_to_tz_position(const unsigned char **tzf, char *timezone, const 
 		cur_locale = strdup(tmp);
 	}
 	setlocale(LC_CTYPE, "C");
-#endif	
+#endif
 
 	do {
 		int mid = ((unsigned)left + right) >> 1;
@@ -282,7 +282,7 @@ static int seek_to_tz_position(const unsigned char **tzf, char *timezone, const 
 #ifdef HAVE_SETLOCALE
 			setlocale(LC_CTYPE, cur_locale);
 			if (cur_locale) free(cur_locale);
-#endif	
+#endif
 			return 1;
 		}
 
@@ -291,7 +291,7 @@ static int seek_to_tz_position(const unsigned char **tzf, char *timezone, const 
 #ifdef HAVE_SETLOCALE
 	setlocale(LC_CTYPE, cur_locale);
 	if (cur_locale) free(cur_locale);
-#endif	
+#endif
 	return 0;
 }
 
@@ -336,7 +336,7 @@ static ttinfo* fetch_timezone_offset(timelib_tzinfo *tz, timelib_sll ts, timelib
 {
 	uint32_t i;
 
-	/* If there is no transistion time, we pick the first one, if that doesn't
+	/* If there is no transition time, we pick the first one, if that doesn't
 	 * exist we return NULL */
 	if (!tz->timecnt || !tz->trans) {
 		*transition_time = 0;
@@ -346,8 +346,8 @@ static ttinfo* fetch_timezone_offset(timelib_tzinfo *tz, timelib_sll ts, timelib
 		return NULL;
 	}
 
-	/* If the TS is lower than the first transistion time, then we scan over
-	 * all the transistion times to find the first non-DST one, or the first
+	/* If the TS is lower than the first transition time, then we scan over
+	 * all the transition times to find the first non-DST one, or the first
 	 * one in case there are only DST entries. Not sure which smartass came up
 	 * with this idea in the first though :) */
 	if (ts < tz->trans[0]) {
@@ -396,7 +396,7 @@ int timelib_timestamp_is_in_dst(timelib_sll ts, timelib_tzinfo *tz)
 {
 	ttinfo *to;
 	timelib_sll dummy;
-	
+
 	if ((to = fetch_timezone_offset(tz, ts, &dummy))) {
 		return to->isdst;
 	}
@@ -439,12 +439,12 @@ timelib_sll timelib_get_current_offset(timelib_time *t)
 {
 	timelib_time_offset *gmt_offset;
 	timelib_sll retval;
-			
+
 	switch (t->zone_type) {
 		case TIMELIB_ZONETYPE_ABBR:
 		case TIMELIB_ZONETYPE_OFFSET:
 			return (t->z + t->dst) * -60;
-			
+
 		case TIMELIB_ZONETYPE_ID:
 			gmt_offset = timelib_get_time_zone_info(t->sse, t->tz_info);
 			retval = gmt_offset->offset;

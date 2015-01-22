@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2014 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -121,7 +121,7 @@ void php_base64_init(void)
 		ch += 16;
 	}
 	sprintf(sp, "};");
-	php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Reverse_table:\n%s", s);
+	php_error_docref(NULL, E_NOTICE, "Reverse_table:\n%s", s);
 	efree(s);
 }
 */
@@ -215,7 +215,7 @@ PHP_FUNCTION(base64_encode)
 	size_t str_len;
 	zend_string *result;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &str_len) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s", &str, &str_len) == FAILURE) {
 		return;
 	}
 	result = php_base64_encode((unsigned char*)str, str_len);
@@ -236,7 +236,7 @@ PHP_FUNCTION(base64_decode)
 	size_t str_len;
 	zend_string *result;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|b", &str, &str_len, &strict) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s|b", &str, &str_len, &strict) == FAILURE) {
 		return;
 	}
 	result = php_base64_decode_ex((unsigned char*)str, str_len, strict);

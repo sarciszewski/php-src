@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2014 The PHP Group                                |
+  | Copyright (c) 1997-2015 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -95,16 +95,16 @@ static encodePtr get_create_encoder(sdlPtr sdl, sdlTypePtr cur_type, const xmlCh
 	return enc;
 }
 
-static void schema_load_file(sdlCtx *ctx, xmlAttrPtr ns, xmlChar *location, xmlAttrPtr tns, int import TSRMLS_DC) {
+static void schema_load_file(sdlCtx *ctx, xmlAttrPtr ns, xmlChar *location, xmlAttrPtr tns, int import) {
 	if (location != NULL &&
 	    !zend_hash_str_exists(&ctx->docs, (char*)location, xmlStrlen(location))) {
 		xmlDocPtr doc;
 		xmlNodePtr schema;
 		xmlAttrPtr new_tns;
 
-		sdl_set_uri_credentials(ctx, (char*)location TSRMLS_CC);
-		doc = soap_xmlParseFile((char*)location TSRMLS_CC);
-		sdl_restore_uri_credentials(ctx TSRMLS_CC);
+		sdl_set_uri_credentials(ctx, (char*)location);
+		doc = soap_xmlParseFile((char*)location);
+		sdl_restore_uri_credentials(ctx);
 
 		if (doc == NULL) {
 			soap_error1(E_ERROR, "Parsing Schema: can't import schema from '%s'", location);
@@ -136,7 +136,7 @@ static void schema_load_file(sdlCtx *ctx, xmlAttrPtr ns, xmlChar *location, xmlA
 			}
 		}
 		zend_hash_str_add_ptr(&ctx->docs, (char*)location, xmlStrlen(location), doc);
-		load_schema(ctx, schema TSRMLS_CC);
+		load_schema(ctx, schema);
 	}
 }
 
@@ -160,7 +160,7 @@ static void schema_load_file(sdlCtx *ctx, xmlAttrPtr ns, xmlChar *location, xmlA
   Content: ((include | import | redefine | annotation)*, (((simpleType | complexType | group | attributeGroup) | element | attribute | notation), annotation*)*)
 </schema>
 */
-int load_schema(sdlCtx *ctx, xmlNodePtr schema TSRMLS_DC)
+int load_schema(sdlCtx *ctx, xmlNodePtr schema)
 {
 	xmlNodePtr trav;
 	xmlAttrPtr tns;
@@ -202,7 +202,7 @@ int load_schema(sdlCtx *ctx, xmlNodePtr schema TSRMLS_DC)
 	    		uri = xmlBuildURI(location->children->content, base);
 			    xmlFree(base);
 				}
-				schema_load_file(ctx, NULL, uri, tns, 0 TSRMLS_CC);
+				schema_load_file(ctx, NULL, uri, tns, 0);
 				xmlFree(uri);
 			}
 
@@ -222,7 +222,7 @@ int load_schema(sdlCtx *ctx, xmlNodePtr schema TSRMLS_DC)
 	    		uri = xmlBuildURI(location->children->content, base);
 			    xmlFree(base);
 				}
-				schema_load_file(ctx, NULL, uri, tns, 0 TSRMLS_CC);
+				schema_load_file(ctx, NULL, uri, tns, 0);
 				xmlFree(uri);
 				/* TODO: <redefine> support */
 			}
@@ -251,7 +251,7 @@ int load_schema(sdlCtx *ctx, xmlNodePtr schema TSRMLS_DC)
 			    xmlFree(base);
 				}
 			}
-			schema_load_file(ctx, ns, uri, tns, 1 TSRMLS_CC);
+			schema_load_file(ctx, ns, uri, tns, 1);
 			if (uri != NULL) {xmlFree(uri);}
 		} else if (node_is_equal(trav,"annotation")) {
 			/* TODO: <annotation> support */
@@ -458,7 +458,7 @@ static int schema_list(sdlPtr sdl, xmlAttrPtr tns, xmlNodePtr listType, sdlTypeP
 
 		{
 			smart_str anonymous = {0};
-			
+
 			smart_str_appendl(&anonymous, "anonymous", sizeof("anonymous")-1);
 			smart_str_append_long(&anonymous, zend_hash_num_elements(sdl->types));
 			smart_str_0(&anonymous);
@@ -556,7 +556,7 @@ static int schema_union(sdlPtr sdl, xmlAttrPtr tns, xmlNodePtr unionType, sdlTyp
 
 			{
 				smart_str anonymous = {0};
-			
+
 				smart_str_appendl(&anonymous, "anonymous", sizeof("anonymous")-1);
 				smart_str_append_long(&anonymous, zend_hash_num_elements(sdl->types));
 				smart_str_0(&anonymous);
@@ -1282,8 +1282,8 @@ static int schema_sequence(sdlPtr sdl, xmlAttrPtr tns, xmlNodePtr seqType, sdlTy
 }
 
 /*
-<any 
-  id = ID 
+<any
+  id = ID
   maxOccurs = (nonNegativeInteger | unbounded)  : 1
   minOccurs = nonNegativeInteger : 1
   namespace = ((##any | ##other) | List of (anyURI | (##targetNamespace | ##local)) )  : ##any
@@ -1529,7 +1529,7 @@ static int schema_element(sdlPtr sdl, xmlAttrPtr tns, xmlNodePtr element, sdlTyp
 				if (ns) {
 					smart_str_appends(&nscat, (char*)ns->children->content);
 				}
-			} 
+			}
 			smart_str_appendc(&nscat, ':');
 			smart_str_appends(&nscat, type);
 			newType->name = estrdup(type);
@@ -1654,7 +1654,7 @@ static int schema_element(sdlPtr sdl, xmlAttrPtr tns, xmlNodePtr element, sdlTyp
   	}
 		if (parent == NULL) {
 			cur_type->form = XSD_FORM_UNQUALIFIED;
-		}	
+		}
 	}
 
 	/* type = QName */
@@ -1908,7 +1908,7 @@ static int schema_attribute(sdlPtr sdl, xmlAttrPtr tns, xmlNodePtr attrType, sdl
   	}
 		if (parent == NULL) {
 			newAttr->form = XSD_FORM_UNQUALIFIED;
-		}	
+		}
 	}
 	trav = attrType->children;
 	if (trav != NULL && node_is_equal(trav, "annotation")) {
@@ -1929,7 +1929,7 @@ static int schema_attribute(sdlPtr sdl, xmlAttrPtr tns, xmlNodePtr attrType, sdl
 			memset(dummy_type, 0, sizeof(sdlType));
 			{
 				smart_str anonymous = {0};
-			
+
 				smart_str_appendl(&anonymous, "anonymous", sizeof("anonymous")-1);
 				smart_str_append_long(&anonymous, zend_hash_num_elements(sdl->types));
 				smart_str_0(&anonymous);
@@ -2164,7 +2164,7 @@ static void schema_attributegroup_fixup(sdlCtx *ctx, sdlAttributePtr attr, HashT
 								newAttr->extraAttributes = ht;
 							}
 
-							zend_hash_get_current_key_ex(tmp->attributes, &_key, NULL, 0, &tmp->attributes->nInternalPointer);
+							zend_hash_get_current_key(tmp->attributes, &_key, NULL);
 							zend_hash_add_ptr(ht, _key, newAttr);
 
 							zend_hash_move_forward(tmp->attributes);
@@ -2172,7 +2172,7 @@ static void schema_attributegroup_fixup(sdlCtx *ctx, sdlAttributePtr attr, HashT
 							zend_ulong index;
 
 							schema_attributegroup_fixup(ctx, tmp_attr, ht);
-							zend_hash_get_current_key(tmp->attributes, NULL, &index, 0);
+							zend_hash_get_current_key(tmp->attributes, NULL, &index);
 							zend_hash_index_del(tmp->attributes, index);
 						}
 					}
@@ -2367,7 +2367,7 @@ static void delete_model_persistent_int(sdlContentModelPtr tmp)
 
 void delete_model_persistent(zval *zv)
 {
-	delete_model_persistent_int(Z_PTR_P(zv));	
+	delete_model_persistent_int(Z_PTR_P(zv));
 }
 
 void delete_type(zval *zv)
@@ -2586,5 +2586,5 @@ void delete_restriction_var_char_persistent_int(sdlRestrictionCharPtr ptr)
 
 void delete_restriction_var_char_persistent(zval *zv)
 {
-	delete_restriction_var_char_persistent_int(Z_PTR_P(zv));	
+	delete_restriction_var_char_persistent_int(Z_PTR_P(zv));
 }

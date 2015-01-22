@@ -46,7 +46,7 @@ FILE_RCSID("@(#)$File: funcs.c,v 1.68 2014/02/18 11:09:31 kim Exp $")
 #endif
 
 #ifndef SIZE_MAX
-# define SIZE_MAX ((size_t) -1) 
+# define SIZE_MAX ((size_t) -1)
 #endif
 
 #include "php.h"
@@ -91,7 +91,7 @@ file_error_core(struct magic_set *ms, int error, const char *f, va_list va,
     size_t lineno)
 {
 	char *buf = NULL;
-	
+
 	/* Only the first error is ok */
 	if (ms->event_flags & EVENT_HAD_ERR)
 		return;
@@ -103,13 +103,13 @@ file_error_core(struct magic_set *ms, int error, const char *f, va_list va,
 
 	vspprintf(&buf, 0, f, va);
 	va_end(va);
-	
+
 	if (error > 0) {
 		file_printf(ms, "%s (%s)", (*buf ? buf : ""), strerror(error));
 	} else if (*buf) {
 		file_printf(ms, "%s", buf);
 	}
-	
+
 	if (buf) {
 		efree(buf);
 	}
@@ -221,8 +221,7 @@ file_buffer(struct magic_set *ms, php_stream *stream, const char *inname, const 
 	/* Check if we have a CDF file */
 	if ((ms->flags & MAGIC_NO_CHECK_CDF) == 0) {
 		php_socket_t fd;
-		TSRMLS_FETCH();
-		if (stream && SUCCESS == php_stream_cast(stream, PHP_STREAM_AS_FD, (void **)&fd, 0)) {
+			if (stream && SUCCESS == php_stream_cast(stream, PHP_STREAM_AS_FD, (void **)&fd, 0)) {
 			if ((m = file_trycdf(ms, fd, ubuf, nb)) != 0) {
 				if ((ms->flags & MAGIC_DEBUG) != 0)
 					(void)fprintf(stderr, "cdf %d\n", m);
@@ -445,13 +444,12 @@ file_replace(struct magic_set *ms, const char *pat, const char *rep)
 	zend_string *res;
 	zval repl;
 	int  rep_cnt = 0;
-	TSRMLS_FETCH();
 
 	(void)setlocale(LC_CTYPE, "C");
 
 	opts |= PCRE_MULTILINE;
 	convert_libmagic_pattern(&patt, pat, strlen(pat), opts);
-	if ((pce = pcre_get_compiled_regex_cache(Z_STR(patt) TSRMLS_CC)) == NULL) {
+	if ((pce = pcre_get_compiled_regex_cache(Z_STR(patt))) == NULL) {
 		zval_ptr_dtor(&patt);
 		rep_cnt = -1;
 		goto out;
@@ -459,7 +457,7 @@ file_replace(struct magic_set *ms, const char *pat, const char *rep)
 	zval_ptr_dtor(&patt);
 
 	ZVAL_STRING(&repl, rep);
-	res = php_pcre_replace_impl(pce, ms->o.buf, strlen(ms->o.buf), &repl, 0, -1, &rep_cnt TSRMLS_CC);
+	res = php_pcre_replace_impl(pce, ms->o.buf, strlen(ms->o.buf), &repl, 0, -1, &rep_cnt);
 
 	zval_ptr_dtor(&repl);
 	if (NULL == res) {

@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 5                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2014 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -42,14 +42,14 @@ const phpdbg_command_t phpdbg_break_commands[] = {
 
 PHPDBG_BREAK(at) /* {{{ */
 {
-	phpdbg_set_breakpoint_at(param TSRMLS_CC);
+	phpdbg_set_breakpoint_at(param);
 
 	return SUCCESS;
 } /* }}} */
 
 PHPDBG_BREAK(del) /* {{{ */
 {
-	phpdbg_delete_breakpoint(param->num TSRMLS_CC);
+	phpdbg_delete_breakpoint(param->num);
 
 	return SUCCESS;
 } /* }}} */

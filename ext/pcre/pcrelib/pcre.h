@@ -5,7 +5,7 @@
 /* This is the public header file for the PCRE library, to be #included by
 applications that call the PCRE functions.
 
-           Copyright (c) 1997-2014 University of Cambridge
+           Copyright (c) 1997-2015 University of Cambridge
 
 -----------------------------------------------------------------------------
 Redistribution and use in source and binary forms, with or without
@@ -43,7 +43,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 #define PCRE_MAJOR          8
 #define PCRE_MINOR          35
-#define PCRE_PRERELEASE     
+#define PCRE_PRERELEASE
 #define PCRE_DATE           2014-04-04
 
 /* When an application links to a PCRE DLL in Windows, the symbols that are

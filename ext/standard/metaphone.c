@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2014 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -19,7 +19,7 @@
 /* $Id$ */
 
 /*
-	Based on CPANs "Text-Metaphone-1.96" by Michael G Schwern <schwern@pobox.com> 
+	Based on CPANs "Text-Metaphone-1.96" by Michael G Schwern <schwern@pobox.com>
 */
 
 #include "php.h"
@@ -35,7 +35,7 @@ PHP_FUNCTION(metaphone)
 	zend_string *result = NULL;
 	zend_long phones = 0;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S|l", &str, &phones) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S|l", &str, &phones) == FAILURE) {
 		return;
 	}
 
@@ -50,10 +50,10 @@ PHP_FUNCTION(metaphone)
 }
 /* }}} */
 
-/* 
+/*
    this is now the original code by Michael G Schwern:
-   i've changed it just a slightly bit (use emalloc, 
-   get rid of includes etc) 
+   i've changed it just a slightly bit (use emalloc,
+   get rid of includes etc)
 	- thies - 13.09.1999
 */
 
@@ -226,8 +226,8 @@ static int metaphone(unsigned char *word, size_t word_len, zend_long max_phoneme
 			w_idx += 2;
 		}
 		break;
-		/* WH becomes W, 
-		   WR becomes R 
+		/* WH becomes W,
+		   WR becomes R
 		   W if followed by a vowel */
 	case 'W':
 		if (Next_Letter == 'R') {
@@ -267,7 +267,7 @@ static int metaphone(unsigned char *word, size_t word_len, zend_long max_phoneme
 	for (; Curr_Letter != '\0' &&
 		 (max_phonemes == 0 || Phone_Len < max_phonemes);
 		 w_idx++) {
-		/* How many letters to skip because an eariler encoding handled     
+		/* How many letters to skip because an eariler encoding handled
 		 * multiple letters */
 		unsigned short int skip_letter = 0;
 
@@ -335,7 +335,7 @@ static int metaphone(unsigned char *word, size_t word_len, zend_long max_phoneme
 				Phonize('T');
 			break;
 			/* F if in -GH and not B--GH, D--GH, -H--GH, -H---GH
-			 * else dropped if -GNED, -GN, 
+			 * else dropped if -GNED, -GN,
 			 * else dropped if -DGE-, -DGI- or -DGY- (handled in D)
 			 * else J if in -GE-, -GI, -GY and not GG
 			 * else K

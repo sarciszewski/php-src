@@ -1099,7 +1099,7 @@ function SAPI(sapiname, file_list, makefiletarget, cflags, obj_dir)
 		manifest = "-@$(_VC_MANIFEST_EMBED_DLL)";
 	} else if (makefiletarget.match(new RegExp("\\.lib$"))) {
 		ldflags = "$(ARFLAGS)";
-		ld = "$(MAKE_LIB)";
+		ld = "@$(MAKE_LIB)";
 	} else {
 		ldflags = "$(LDFLAGS)";
 		manifest = "-@$(_VC_MANIFEST_EMBED_EXE)";
@@ -2544,6 +2544,20 @@ function toolset_setup_arch()
 	DEFINE("PHP_ARCHITECTURE", X64 ? 'x64' : 'x86');
 }
 
+function toolset_setup_codegen_arch()
+{
+	if("no" == PHP_CODEGEN_ARCH) {
+		return;
+	}
+
+	if (VS_TOOLSET) {
+		var arc = PHP_CODEGEN_ARCH.toUpperCase();
+
+		if ("AVX2" == arc || "AVX" == arc || "SSE2" == arc || "SSE" == arc || "IA32" == arc) {
+			ADD_FLAG("CFLAGS", "/arch:" + arc);
+		}
+	}
+}
 
 function toolset_setup_linker()
 {
@@ -2569,7 +2583,7 @@ function toolset_setup_common_cflags()
 
 	// General CFLAGS for building objects
 	DEFINE("CFLAGS", "/nologo $(BASE_INCLUDES) /D _WINDOWS \
-		/D ZEND_WIN32=1 /D PHP_WIN32=1 /D WIN32 /D _MBCS /W3 ");
+		/D ZEND_WIN32=1 /D PHP_WIN32=1 /D WIN32 /D _MBCS /W3");
 
 	if (VS_TOOLSET) {
 		ADD_FLAG("CFLAGS", " /FD ");

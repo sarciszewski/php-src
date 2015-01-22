@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | Zend Engine                                                          |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1998-2014 Zend Technologies Ltd. (http://www.zend.com) |
+   | Copyright (c) 1998-2015 Zend Technologies Ltd. (http://www.zend.com) |
    +----------------------------------------------------------------------+
    | This source file is subject to version 2.00 of the Zend license,     |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -82,6 +82,24 @@
 	} else {														\
 		(lval) = __lres;											\
 	}																\
+} while (0)
+
+#elif defined(__powerpc64__) && defined(__GNUC__)
+
+#define ZEND_SIGNED_MULTIPLY_LONG(a, b, lval, dval, usedval) do {  \
+   long __tmpvar;                          \
+   __asm__("li 14, 0\n\t"                          \
+       "mtxer 14\n\t"                                          \
+       "mulldo. %0, %2,%3\n\t"                 \
+       "xor %1, %1, %1\n\t"                    \
+       "bns+ 0f\n\t"                       \
+        "li %1, 1\n\t"                     \
+        "0:\n"                         \
+           : "=r"(__tmpvar),"=r"(usedval)          \
+           : "r"(a), "r"(b)                \
+           : "r14", "cc");                 \
+   if (usedval) (dval) = (double) (a) * (double) (b);      \
+   else (lval) = __tmpvar;                     \
 } while (0)
 
 #elif SIZEOF_ZEND_LONG == 4
@@ -204,6 +222,30 @@ static zend_always_inline size_t zend_safe_address(size_t nmemb, size_t size, si
 	}
 	*overflow = 0;
 	return res;
+}
+
+#elif defined(__GNUC__) && defined(__powerpc64__)
+
+static zend_always_inline size_t zend_safe_address(size_t nmemb, size_t size, size_t offset, int *overflow)
+{
+        size_t res;
+        unsigned long m_overflow;
+
+        __asm__ ("mulld %0,%2,%3\n\t"
+                 "mulhdu %1,%2,%3\n\t"
+                 "addc %0,%0,%4\n\t"
+                 "addze %1,%1\n"
+             : "=&r"(res), "=&r"(m_overflow)
+             : "r"(nmemb),
+               "r"(size),
+               "r"(offset));
+
+        if (UNEXPECTED(m_overflow)) {
+                *overflow = 1;
+                return 0;
+        }
+        *overflow = 0;
+        return res;
 }
 
 #elif SIZEOF_SIZE_T == 4

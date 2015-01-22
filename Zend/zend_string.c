@@ -2,10 +2,10 @@
    +----------------------------------------------------------------------+
    | Zend Engine                                                          |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1998-2014 Zend Technologies Ltd. (http://www.zend.com) |
+   | Copyright (c) 1998-2015 Zend Technologies Ltd. (http://www.zend.com) |
    +----------------------------------------------------------------------+
    | This source file is subject to version 2.00 of the Zend license,     |
-   | that is bundled with this package in the file LICENSE, and is        | 
+   | that is bundled with this package in the file LICENSE, and is        |
    | available through the world-wide-web at the following url:           |
    | http://www.zend.com/license/2_00.txt.                                |
    | If you did not receive a copy of the Zend license and are unable to  |
@@ -21,13 +21,13 @@
 #include "zend.h"
 #include "zend_globals.h"
 
-ZEND_API zend_string *(*zend_new_interned_string)(zend_string *str TSRMLS_DC);
-ZEND_API void (*zend_interned_strings_snapshot)(TSRMLS_D);
-ZEND_API void (*zend_interned_strings_restore)(TSRMLS_D);
+ZEND_API zend_string *(*zend_new_interned_string)(zend_string *str);
+ZEND_API void (*zend_interned_strings_snapshot)(void);
+ZEND_API void (*zend_interned_strings_restore)(void);
 
-static zend_string *zend_new_interned_string_int(zend_string *str TSRMLS_DC);
-static void zend_interned_strings_snapshot_int(TSRMLS_D);
-static void zend_interned_strings_restore_int(TSRMLS_D);
+static zend_string *zend_new_interned_string_int(zend_string *str);
+static void zend_interned_strings_snapshot_int(void);
+static void zend_interned_strings_restore_int(void);
 
 ZEND_API zend_ulong zend_hash_func(const char *str, size_t len)
 {
@@ -43,13 +43,13 @@ static void _str_dtor(zval *zv)
 }
 #endif
 
-void zend_interned_strings_init(TSRMLS_D)
+void zend_interned_strings_init(void)
 {
 #ifndef ZTS
 	zend_string *str;
 
 	zend_hash_init(&CG(interned_strings), 1024, NULL, _str_dtor, 1);
-	
+
 	CG(interned_strings).nTableMask = CG(interned_strings).nTableSize - 1;
 	CG(interned_strings).arData = (Bucket*) pecalloc(CG(interned_strings).nTableSize, sizeof(Bucket), 1);
 	CG(interned_strings).arHash = (uint32_t*) pecalloc(CG(interned_strings).nTableSize, sizeof(uint32_t), 1);
@@ -58,7 +58,7 @@ void zend_interned_strings_init(TSRMLS_D)
 	/* interned empty string */
 	str = zend_string_alloc(sizeof("")-1, 1);
 	str->val[0] = '\000';
-	CG(empty_string) = zend_new_interned_string_int(str TSRMLS_CC);
+	CG(empty_string) = zend_new_interned_string_int(str);
 #endif
 
 	/* one char strings (the actual interned strings are going to be created by ext/opcache) */
@@ -69,14 +69,14 @@ void zend_interned_strings_init(TSRMLS_D)
 	zend_interned_strings_restore = zend_interned_strings_restore_int;
 }
 
-void zend_interned_strings_dtor(TSRMLS_D)
+void zend_interned_strings_dtor(void)
 {
 #ifndef ZTS
 	zend_hash_destroy(&CG(interned_strings));
 #endif
 }
 
-static zend_string *zend_new_interned_string_int(zend_string *str TSRMLS_DC)
+static zend_string *zend_new_interned_string_int(zend_string *str)
 {
 #ifndef ZTS
 	zend_ulong h;
@@ -101,7 +101,7 @@ static zend_string *zend_new_interned_string_int(zend_string *str TSRMLS_DC)
 		}
 		idx = Z_NEXT(p->val);
 	}
-	
+
 	GC_REFCOUNT(str) = 1;
 	GC_FLAGS(str) |= IS_STR_INTERNED;
 
@@ -123,7 +123,7 @@ static zend_string *zend_new_interned_string_int(zend_string *str TSRMLS_DC)
 	}
 
 	HANDLE_BLOCK_INTERRUPTIONS();
-	
+
 	idx = CG(interned_strings).nNumUsed++;
 	CG(interned_strings).nNumOfElements++;
 	p = CG(interned_strings).arData + idx;
@@ -134,7 +134,7 @@ static zend_string *zend_new_interned_string_int(zend_string *str TSRMLS_DC)
 	nIndex = h & CG(interned_strings).nTableMask;
 	Z_NEXT(p->val) = CG(interned_strings).arHash[nIndex];
 	CG(interned_strings).arHash[nIndex] = idx;
-		
+
 	HANDLE_UNBLOCK_INTERRUPTIONS();
 
 	return str;
@@ -143,7 +143,7 @@ static zend_string *zend_new_interned_string_int(zend_string *str TSRMLS_DC)
 #endif
 }
 
-static void zend_interned_strings_snapshot_int(TSRMLS_D)
+static void zend_interned_strings_snapshot_int(void)
 {
 #ifndef ZTS
 	uint idx;
@@ -159,7 +159,7 @@ static void zend_interned_strings_snapshot_int(TSRMLS_D)
 #endif
 }
 
-static void zend_interned_strings_restore_int(TSRMLS_D)
+static void zend_interned_strings_restore_int(void)
 {
 #ifndef ZTS
 	uint nIndex;

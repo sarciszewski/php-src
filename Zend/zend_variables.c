@@ -2,10 +2,10 @@
    +----------------------------------------------------------------------+
    | Zend Engine                                                          |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1998-2014 Zend Technologies Ltd. (http://www.zend.com) |
+   | Copyright (c) 1998-2015 Zend Technologies Ltd. (http://www.zend.com) |
    +----------------------------------------------------------------------+
    | This source file is subject to version 2.00 of the Zend license,     |
-   | that is bundled with this package in the file LICENSE, and is        | 
+   | that is bundled with this package in the file LICENSE, and is        |
    | available through the world-wide-web at the following url:           |
    | http://www.zend.com/license/2_00.txt.                                |
    | If you did not receive a copy of the Zend license and are unable to  |
@@ -39,34 +39,31 @@ ZEND_API void _zval_dtor_func(zend_refcounted *p ZEND_FILE_LINE_DC)
 			}
 		case IS_ARRAY: {
 				zend_array *arr = (zend_array*)p;
-				TSRMLS_FETCH();
 
 				if (arr != &EG(symbol_table)) {
 					/* break possible cycles */
 					GC_TYPE(arr) = IS_NULL;
 					GC_REMOVE_FROM_BUFFER(arr);
-					zend_hash_destroy(&arr->ht);
+					zend_array_destroy(&arr->ht);
 					efree_size(arr, sizeof(zend_array));
 				}
 				break;
 			}
 		case IS_CONSTANT_AST: {
 				zend_ast_ref *ast = (zend_ast_ref*)p;
-		
+
 				zend_ast_destroy_and_free(ast->ast);
 				efree_size(ast, sizeof(zend_ast_ref));
 				break;
 			}
 		case IS_OBJECT: {
 				zend_object *obj = (zend_object*)p;
-				TSRMLS_FETCH();
 
 				OBJ_RELEASE(obj);
 				break;
 			}
 		case IS_RESOURCE: {
 				zend_resource *res = (zend_resource*)p;
-				TSRMLS_FETCH();
 
 				if (--GC_REFCOUNT(res) == 0) {
 					/* destroy resource */
@@ -77,7 +74,8 @@ ZEND_API void _zval_dtor_func(zend_refcounted *p ZEND_FILE_LINE_DC)
 		case IS_REFERENCE: {
 				zend_reference *ref = (zend_reference*)p;
 				if (--GC_REFCOUNT(ref) == 0) {
-					zval_ptr_dtor(&ref->val);
+
+					i_zval_ptr_dtor(&ref->val ZEND_FILE_LINE_RELAY_CC);
 					efree_size(ref, sizeof(zend_reference));
 				}
 				break;
@@ -99,13 +97,12 @@ ZEND_API void _zval_dtor_func_for_ptr(zend_refcounted *p ZEND_FILE_LINE_DC)
 			}
 		case IS_ARRAY: {
 				zend_array *arr = (zend_array*)p;
-				TSRMLS_FETCH();
 
 				if (arr != &EG(symbol_table)) {
 					/* break possible cycles */
 					GC_TYPE(arr) = IS_NULL;
 					GC_REMOVE_FROM_BUFFER(arr);
-					zend_hash_destroy(&arr->ht);
+					zend_array_destroy(&arr->ht);
 					efree_size(arr, sizeof(zend_array));
 				}
 				break;
@@ -119,14 +116,12 @@ ZEND_API void _zval_dtor_func_for_ptr(zend_refcounted *p ZEND_FILE_LINE_DC)
 			}
 		case IS_OBJECT: {
 				zend_object *obj = (zend_object*)p;
-				TSRMLS_FETCH();
 
-				zend_objects_store_del(obj TSRMLS_CC);
+				zend_objects_store_del(obj);
 				break;
 			}
 		case IS_RESOURCE: {
 				zend_resource *res = (zend_resource*)p;
-				TSRMLS_FETCH();
 
 				/* destroy resource */
 				zend_list_free(res);
@@ -135,7 +130,7 @@ ZEND_API void _zval_dtor_func_for_ptr(zend_refcounted *p ZEND_FILE_LINE_DC)
 		case IS_REFERENCE: {
 				zend_reference *ref = (zend_reference*)p;
 
-				zval_ptr_dtor(&ref->val);
+				i_zval_ptr_dtor(&ref->val ZEND_FILE_LINE_RELAY_CC);
 				efree_size(ref, sizeof(zend_reference));
 				break;
 			}
@@ -206,6 +201,10 @@ ZEND_API void _zval_internal_dtor_for_ptr(zval *zvalue ZEND_FILE_LINE_DC)
 	}
 }
 
+/* This function should only be used as a copy constructor, i.e. it
+ * should only be called AFTER a zval has been copied to another
+ * location using ZVAL_COPY_VALUE. Do not call it before copying,
+ * otherwise a reference may be leaked. */
 ZEND_API void zval_add_ref(zval *p)
 {
 	if (Z_REFCOUNTED_P(p)) {
@@ -238,7 +237,6 @@ ZEND_API void _zval_copy_ctor_func(zval *zvalue ZEND_FILE_LINE_DC)
 			break;
 		case IS_ARRAY: {
 				HashTable *ht;
-				TSRMLS_FETCH();
 
 				if (Z_ARR_P(zvalue) == &EG(symbol_table)) {
 					return; /* do nothing */
@@ -266,9 +264,9 @@ ZEND_API void _zval_copy_ctor_func(zval *zvalue ZEND_FILE_LINE_DC)
 }
 
 
-ZEND_API size_t zend_print_variable(zval *var TSRMLS_DC) 
+ZEND_API size_t zend_print_variable(zval *var)
 {
-	return zend_print_zval(var, 0 TSRMLS_CC);
+	return zend_print_zval(var, 0);
 }
 
 
@@ -293,7 +291,8 @@ ZEND_API void _zval_internal_dtor_wrapper(zval *zvalue)
 
 ZEND_API void _zval_ptr_dtor_wrapper(zval *zval_ptr)
 {
-	zval_ptr_dtor(zval_ptr);
+
+	i_zval_ptr_dtor(zval_ptr ZEND_FILE_LINE_CC);
 }
 
 
@@ -303,17 +302,17 @@ ZEND_API void _zval_internal_ptr_dtor_wrapper(zval *zval_ptr)
 }
 #endif
 
-ZEND_API int zval_copy_static_var(zval *p TSRMLS_DC, int num_args, va_list args, zend_hash_key *key) /* {{{ */
+ZEND_API int zval_copy_static_var(zval *p, int num_args, va_list args, zend_hash_key *key) /* {{{ */
 {
 	zend_array *symbol_table;
 	HashTable *target = va_arg(args, HashTable*);
 	zend_bool is_ref;
 	zval tmp;
-  
+
 	if (Z_CONST_FLAGS_P(p) & (IS_LEXICAL_VAR|IS_LEXICAL_REF)) {
 		is_ref = Z_CONST_FLAGS_P(p) & IS_LEXICAL_REF;
-    
-		symbol_table = zend_rebuild_symbol_table(TSRMLS_C);
+
+		symbol_table = zend_rebuild_symbol_table();
 		p = zend_hash_find(&symbol_table->ht, key->key);
 		if (!p) {
 			p = &tmp;
@@ -350,7 +349,7 @@ ZEND_API int zval_copy_static_var(zval *p TSRMLS_DC, int num_args, va_list args,
 		}
 	} else if (Z_REFCOUNTED_P(p)) {
 		Z_ADDREF_P(p);
-	} 
+	}
 	zend_hash_add(target, key->key, p);
 	return ZEND_HASH_APPLY_KEEP;
 }

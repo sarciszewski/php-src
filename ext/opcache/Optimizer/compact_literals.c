@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | Zend OPcache                                                         |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1998-2014 The PHP Group                                |
+   | Copyright (c) 1998-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -114,7 +114,7 @@ static void optimizer_literal_class_info(literal_info   *info,
 	}
 }
 
-void zend_optimizer_compact_literals(zend_op_array *op_array, zend_optimizer_ctx *ctx TSRMLS_DC)
+void zend_optimizer_compact_literals(zend_op_array *op_array, zend_optimizer_ctx *ctx)
 {
 	zend_op *opline, *end;
 	int i, j, n, *map, cache_slots;
@@ -309,7 +309,7 @@ void zend_optimizer_compact_literals(zend_op_array *op_array, zend_optimizer_ctx
 
 			for (i = 0; i < op_array->last_literal; i++) {
 				zval zv = op_array->literals[i].constant;
-				use_copy = zend_make_printable_zval(&op_array->literals[i].constant, &zv TSRMLS_CC);
+				use_copy = zend_make_printable_zval(&op_array->literals[i].constant, &zv);
 				fprintf(stderr, "Literal %d, val (%d):%s\n", i, Z_STRLEN(zv), Z_STRVAL(zv));
 				if (use_copy) {
 					zval_dtor(&zv);
@@ -490,7 +490,7 @@ void zend_optimizer_compact_literals(zend_op_array *op_array, zend_optimizer_ctx
 
 			for (i = 0; i < op_array->last_literal; i++) {
 				zval zv = op_array->literals[i].constant;
-				use_copy = zend_make_printable_zval(&op_array->literals[i].constant, &zv TSRMLS_CC);
+				use_copy = zend_make_printable_zval(&op_array->literals[i].constant, &zv);
 				fprintf(stderr, "Literal %d, val (%d):%s\n", i, Z_STRLEN(zv), Z_STRVAL(zv));
 				if (use_copy) {
 					zval_dtor(&zv);

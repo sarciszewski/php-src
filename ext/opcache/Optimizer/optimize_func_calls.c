@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | Zend OPcache                                                         |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1998-2014 The PHP Group                                |
+   | Copyright (c) 1998-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -38,19 +38,19 @@ typedef struct _optimizer_call_info {
 	zend_op       *opline;
 } optimizer_call_info;
 
-void optimize_func_calls(zend_op_array *op_array, zend_optimizer_ctx *ctx TSRMLS_DC)
+void optimize_func_calls(zend_op_array *op_array, zend_optimizer_ctx *ctx)
 {
 	zend_op *opline = op_array->opcodes;
 	zend_op *end = opline + op_array->last;
 	int call = 0;
-	void *checkpoint; 
+	void *checkpoint;
 	optimizer_call_info *call_stack;
 
 	if (op_array->last < 2) {
 		return;
 	}
 
-	checkpoint = zend_arena_checkpoint(ctx->arena); 
+	checkpoint = zend_arena_checkpoint(ctx->arena);
 	call_stack = zend_arena_calloc(&ctx->arena, op_array->last / 2, sizeof(optimizer_call_info));
 	while (opline < end) {
 		switch (opline->opcode) {
@@ -80,11 +80,13 @@ void optimize_func_calls(zend_op_array *op_array, zend_optimizer_ctx *ctx TSRMLS
 
 					if (fcall->opcode == ZEND_INIT_FCALL_BY_NAME) {
 						fcall->opcode = ZEND_INIT_FCALL;
+						fcall->op1.num = zend_vm_calc_used_stack(fcall->extended_value, call_stack[call].func);
 						Z_CACHE_SLOT(op_array->literals[fcall->op2.constant + 1]) = Z_CACHE_SLOT(op_array->literals[fcall->op2.constant]);
 						literal_dtor(&ZEND_OP2_LITERAL(fcall));
 						fcall->op2.constant = fcall->op2.constant + 1;
 					} else if (fcall->opcode == ZEND_INIT_NS_FCALL_BY_NAME) {
 						fcall->opcode = ZEND_INIT_FCALL;
+						fcall->op1.num = zend_vm_calc_used_stack(fcall->extended_value, call_stack[call].func);
 						Z_CACHE_SLOT(op_array->literals[fcall->op2.constant + 1]) = Z_CACHE_SLOT(op_array->literals[fcall->op2.constant]);
 						literal_dtor(&op_array->literals[fcall->op2.constant]);
 						literal_dtor(&op_array->literals[fcall->op2.constant + 2]);
@@ -92,17 +94,6 @@ void optimize_func_calls(zend_op_array *op_array, zend_optimizer_ctx *ctx TSRMLS
 					} else {
 						ZEND_ASSERT(0);
 					}
-				} else if (call_stack[call].opline &&
-				           call_stack[call].opline->opcode == ZEND_INIT_FCALL_BY_NAME &&
-				           call_stack[call].opline->extended_value == 0 &&
-						   ZEND_OP2_IS_CONST_STRING(call_stack[call].opline)) {
-
-					zend_op *fcall = call_stack[call].opline;
-
-					fcall->opcode = ZEND_INIT_FCALL;
-					Z_CACHE_SLOT(op_array->literals[fcall->op2.constant + 1]) = Z_CACHE_SLOT(op_array->literals[fcall->op2.constant]);
-					literal_dtor(&ZEND_OP2_LITERAL(fcall));
-					fcall->op2.constant = fcall->op2.constant + 1;
 				}
 				call_stack[call].func = NULL;
 				call_stack[call].opline = NULL;

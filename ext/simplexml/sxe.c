@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2014 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -41,13 +41,13 @@ zend_class_entry *ce_SimpleXMLElement;
 PHP_METHOD(ce_SimpleXMLIterator, rewind)
 {
 	php_sxe_iterator iter;
-	
+
 	if (zend_parse_parameters_none() == FAILURE) {
 		return;
 	}
 
 	iter.sxe = Z_SXEOBJ_P(getThis());
-	ce_SimpleXMLElement->iterator_funcs.funcs->rewind((zend_object_iterator*)&iter TSRMLS_CC);
+	ce_SimpleXMLElement->iterator_funcs.funcs->rewind((zend_object_iterator*)&iter);
 }
 /* }}} */
 
@@ -56,7 +56,7 @@ PHP_METHOD(ce_SimpleXMLIterator, rewind)
 PHP_METHOD(ce_SimpleXMLIterator, valid)
 {
 	php_sxe_object *sxe = Z_SXEOBJ_P(getThis());
-	
+
 	if (zend_parse_parameters_none() == FAILURE) {
 		return;
 	}
@@ -70,7 +70,7 @@ PHP_METHOD(ce_SimpleXMLIterator, valid)
 PHP_METHOD(ce_SimpleXMLIterator, current)
 {
 	php_sxe_object *sxe = Z_SXEOBJ_P(getThis());
-	
+
 	if (zend_parse_parameters_none() == FAILURE) {
 		return;
 	}
@@ -90,7 +90,7 @@ PHP_METHOD(ce_SimpleXMLIterator, key)
 	xmlNodePtr curnode;
 	php_sxe_object *intern;
 	php_sxe_object *sxe = Z_SXEOBJ_P(getThis());
-	
+
 	if (zend_parse_parameters_none() == FAILURE) {
 		return;
 	}
@@ -104,7 +104,7 @@ PHP_METHOD(ce_SimpleXMLIterator, key)
 		curnode = (xmlNodePtr)((php_libxml_node_ptr *)intern->node)->node;
 		RETURN_STRINGL((char*)curnode->name, xmlStrlen(curnode->name));
 	}
-    
+
 	RETURN_FALSE;
 }
 /* }}} */
@@ -114,24 +114,24 @@ PHP_METHOD(ce_SimpleXMLIterator, key)
 PHP_METHOD(ce_SimpleXMLIterator, next)
 {
 	php_sxe_iterator iter;
-	
+
 	if (zend_parse_parameters_none() == FAILURE) {
 		return;
 	}
 
 	iter.sxe = Z_SXEOBJ_P(getThis());
-	ce_SimpleXMLElement->iterator_funcs.funcs->move_forward((zend_object_iterator*)&iter TSRMLS_CC);
+	ce_SimpleXMLElement->iterator_funcs.funcs->move_forward((zend_object_iterator*)&iter);
 }
 /* }}} */
 
 /* {{{ proto bool SimpleXMLIterator::hasChildren()
- Check whether element has children (elements) */ 
+ Check whether element has children (elements) */
 PHP_METHOD(ce_SimpleXMLIterator, hasChildren)
 {
 	php_sxe_object *sxe = Z_SXEOBJ_P(getThis());
 	php_sxe_object *child;
 	xmlNodePtr      node;
-	
+
 	if (zend_parse_parameters_none() == FAILURE) {
 		return;
 	}
@@ -153,11 +153,11 @@ PHP_METHOD(ce_SimpleXMLIterator, hasChildren)
 /* }}} */
 
 /* {{{ proto SimpleXMLIterator SimpleXMLIterator::getChildren()
- Get child element iterator */ 
+ Get child element iterator */
 PHP_METHOD(ce_SimpleXMLIterator, getChildren)
 {
 	php_sxe_object *sxe = Z_SXEOBJ_P(getThis());
-	
+
 	if (zend_parse_parameters_none() == FAILURE) {
 		return;
 	}
@@ -199,11 +199,11 @@ PHP_MINIT_FUNCTION(sxe) /* {{{ */
 	ce_SimpleXMLElement = pce;
 
 	INIT_CLASS_ENTRY_EX(sxi, "SimpleXMLIterator", sizeof("SimpleXMLIterator") - 1, funcs_SimpleXMLIterator);
-	ce_SimpleXMLIterator = zend_register_internal_class_ex(&sxi, ce_SimpleXMLElement TSRMLS_CC);
+	ce_SimpleXMLIterator = zend_register_internal_class_ex(&sxi, ce_SimpleXMLElement);
 	ce_SimpleXMLIterator->create_object = ce_SimpleXMLElement->create_object;
 
-	zend_class_implements(ce_SimpleXMLIterator TSRMLS_CC, 1, spl_ce_RecursiveIterator);
-	zend_class_implements(ce_SimpleXMLIterator TSRMLS_CC, 1, spl_ce_Countable);
+	zend_class_implements(ce_SimpleXMLIterator, 1, spl_ce_RecursiveIterator);
+	zend_class_implements(ce_SimpleXMLIterator, 1, spl_ce_Countable);
 
 	return SUCCESS;
 }

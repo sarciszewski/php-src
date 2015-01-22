@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2014 The PHP Group                                |
+  | Copyright (c) 1997-2015 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -83,7 +83,10 @@ ZEND_END_MODULE_GLOBALS(pdo_mysql)
 ZEND_EXTERN_MODULE_GLOBALS(pdo_mysql)
 
 #ifdef ZTS
-#define PDO_MYSQL_G(v) TSRMG(pdo_mysql_globals_id, zend_pdo_mysql_globals *, v)
+#define PDO_MYSQL_G(v) ZEND_TSRMG(pdo_mysql_globals_id, zend_pdo_mysql_globals *, v)
+# ifdef COMPILE_DL_PDO_MYSQL
+ZEND_TSRMLS_CACHE_EXTERN;
+# endif
 #else
 #define PDO_MYSQL_G(v) (pdo_mysql_globals.v)
 #endif
@@ -104,7 +107,7 @@ typedef struct {
 	unsigned buffered:1;
 	unsigned emulate_prepare:1;
 	unsigned fetch_table_names:1;
-	unsigned _reserved:31;	
+	unsigned _reserved:31;
 #if !PDO_USE_MYSQLND
 	zend_ulong max_buffer_size;
 #endif
@@ -131,7 +134,7 @@ typedef struct {
 	MYSQLND_STMT 			*stmt;
 #else
 	MYSQL_STMT				*stmt;
-#endif	
+#endif
 	int 					num_params;
 	PDO_MYSQL_PARAM_BIND	*params;
 #ifndef PDO_USE_MYSQLND
@@ -147,9 +150,9 @@ typedef struct {
 
 extern pdo_driver_t pdo_mysql_driver;
 
-extern int _pdo_mysql_error(pdo_dbh_t *dbh, pdo_stmt_t *stmt, const char *file, int line TSRMLS_DC);
-#define pdo_mysql_error(s) _pdo_mysql_error(s, NULL, __FILE__, __LINE__ TSRMLS_CC)
-#define pdo_mysql_error_stmt(s) _pdo_mysql_error(stmt->dbh, stmt, __FILE__, __LINE__ TSRMLS_CC)
+extern int _pdo_mysql_error(pdo_dbh_t *dbh, pdo_stmt_t *stmt, const char *file, int line);
+#define pdo_mysql_error(s) _pdo_mysql_error(s, NULL, __FILE__, __LINE__)
+#define pdo_mysql_error_stmt(s) _pdo_mysql_error(stmt->dbh, stmt, __FILE__, __LINE__)
 
 extern struct pdo_stmt_methods mysql_stmt_methods;
 
@@ -172,8 +175,9 @@ enum {
 	PDO_MYSQL_ATTR_SSL_CAPATH,
 	PDO_MYSQL_ATTR_SSL_CIPHER,
 #if MYSQL_VERSION_ID > 50605 || defined(PDO_USE_MYSQLND)
-	PDO_MYSQL_ATTR_SERVER_PUBLIC_KEY
+	PDO_MYSQL_ATTR_SERVER_PUBLIC_KEY,
 #endif
+	PDO_MYSQL_ATTR_MULTI_STATEMENTS,
 };
 
 #endif

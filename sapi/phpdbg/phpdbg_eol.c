@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 5                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2014 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -33,7 +33,7 @@ struct phpdbg_eol_rep phpdbg_eol_list[EOL_LIST_LEN] = {
 	{"CR", "\r", PHPDBG_EOL_CR},
 };
 
-int phpdbg_eol_global_update(char *name TSRMLS_DC)
+int phpdbg_eol_global_update(char *name)
 {
 
 	if (0 == memcmp(name, "CRLF", 4) || 0 == memcmp(name, "crlf", 4) || 0 == memcmp(name, "DOS", 3) || 0 == memcmp(name, "dos", 3)) {
@@ -83,7 +83,7 @@ char *phpdbg_eol_rep(int id)
 
 
 /* Inspired by https://ccrma.stanford.edu/~craig/utility/flip/flip.cpp */
-void phpdbg_eol_convert(char **str, int *len TSRMLS_DC)
+void phpdbg_eol_convert(char **str, int *len)
 {
 	char *in = *str, *out ;
 	int in_len = *len, out_len, cursor, i;
@@ -124,7 +124,7 @@ void phpdbg_eol_convert(char **str, int *len TSRMLS_DC)
 				out[cursor] = cur;
 				last = cur;
 			}
-			
+
 			i++;
 			cursor++;
 			cur = in[i];

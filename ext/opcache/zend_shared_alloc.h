@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | Zend OPcache                                                         |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1998-2014 The PHP Group                                |
+   | Copyright (c) 1998-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -124,7 +124,7 @@ void zend_shared_alloc_shutdown(void);
 void *zend_shared_alloc(size_t size);
 
 /* copy into shared memory */
-void *_zend_shared_memdup(void *p, size_t size, zend_bool free_source TSRMLS_DC);
+void *_zend_shared_memdup(void *p, size_t size, zend_bool free_source);
 int  zend_shared_memdup_size(void *p, size_t size);
 
 typedef union _align_test {
@@ -143,9 +143,9 @@ typedef union _align_test {
 	((size + PLATFORM_ALIGNMENT - 1) & ~(PLATFORM_ALIGNMENT - 1))
 
 /* exclusive locking */
-void zend_shared_alloc_lock(TSRMLS_D);
-void zend_shared_alloc_unlock(TSRMLS_D); /* returns the allocated size during lock..unlock */
-void zend_shared_alloc_safe_unlock(TSRMLS_D);
+void zend_shared_alloc_lock(void);
+void zend_shared_alloc_unlock(void); /* returns the allocated size during lock..unlock */
+void zend_shared_alloc_safe_unlock(void);
 
 /* old/new mapping functions */
 void zend_shared_alloc_clear_xlat_table(void);
@@ -158,7 +158,7 @@ void zend_shared_alloc_restore_state(void);
 const char *zend_accel_get_shared_model(void);
 
 /* memory write protection */
-void zend_accel_shared_protect(int mode TSRMLS_DC);
+void zend_accel_shared_protect(int mode);
 
 #ifdef USE_MMAP
 extern zend_shared_memory_handlers zend_alloc_mmap_handlers;

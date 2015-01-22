@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2014 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -23,16 +23,16 @@
 
 #define PS_SANITY_CHECK						\
 	if (PS(default_mod) == NULL) {				\
-		php_error_docref(NULL TSRMLS_CC, E_CORE_ERROR, "Cannot call default session handler"); \
+		php_error_docref(NULL, E_CORE_ERROR, "Cannot call default session handler"); \
 		RETURN_FALSE;						\
-	}							
+	}
 
 #define PS_SANITY_CHECK_IS_OPEN				\
 	PS_SANITY_CHECK; \
 	if (!PS(mod_user_is_open)) {			\
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Parent session handler is not open");	\
+		php_error_docref(NULL, E_WARNING, "Parent session handler is not open");	\
 		RETURN_FALSE;						\
-	}							
+	}
 
 /* {{{ proto bool SessionHandler::open(string save_path, string session_name)
    Wraps the old open handler */
@@ -43,12 +43,12 @@ PHP_METHOD(SessionHandler, open)
 
 	PS_SANITY_CHECK;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &save_path, &save_path_len, &session_name, &session_name_len) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "ss", &save_path, &save_path_len, &session_name, &session_name_len) == FAILURE) {
 		return;
 	}
 
 	PS(mod_user_is_open) = 1;
-	RETVAL_BOOL(SUCCESS == PS(default_mod)->s_open(&PS(mod_data), save_path, session_name TSRMLS_CC));
+	RETVAL_BOOL(SUCCESS == PS(default_mod)->s_open(&PS(mod_data), save_path, session_name));
 }
 /* }}} */
 
@@ -61,9 +61,9 @@ PHP_METHOD(SessionHandler, close)
 	// don't return on failure, since not closing the default handler
 	// could result in memory leaks or other nasties
 	zend_parse_parameters_none();
-	
+
 	PS(mod_user_is_open) = 0;
-	RETVAL_BOOL(SUCCESS == PS(default_mod)->s_close(&PS(mod_data) TSRMLS_CC));
+	RETVAL_BOOL(SUCCESS == PS(default_mod)->s_close(&PS(mod_data)));
 }
 /* }}} */
 
@@ -76,11 +76,11 @@ PHP_METHOD(SessionHandler, read)
 
 	PS_SANITY_CHECK_IS_OPEN;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &key) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &key) == FAILURE) {
 		return;
 	}
 
-	if (PS(default_mod)->s_read(&PS(mod_data), key, &val TSRMLS_CC) == FAILURE) {
+	if (PS(default_mod)->s_read(&PS(mod_data), key, &val) == FAILURE) {
 		RETVAL_FALSE;
 		return;
 	}
@@ -97,11 +97,11 @@ PHP_METHOD(SessionHandler, write)
 
 	PS_SANITY_CHECK_IS_OPEN;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "SS", &key, &val) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "SS", &key, &val) == FAILURE) {
 		return;
 	}
 
-	RETURN_BOOL(SUCCESS == PS(default_mod)->s_write(&PS(mod_data), key, val TSRMLS_CC));
+	RETURN_BOOL(SUCCESS == PS(default_mod)->s_write(&PS(mod_data), key, val));
 }
 /* }}} */
 
@@ -113,11 +113,11 @@ PHP_METHOD(SessionHandler, destroy)
 
 	PS_SANITY_CHECK_IS_OPEN;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &key) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &key) == FAILURE) {
 		return;
 	}
-	
-	RETURN_BOOL(SUCCESS == PS(default_mod)->s_destroy(&PS(mod_data), key TSRMLS_CC));
+
+	RETURN_BOOL(SUCCESS == PS(default_mod)->s_destroy(&PS(mod_data), key));
 }
 /* }}} */
 
@@ -130,11 +130,11 @@ PHP_METHOD(SessionHandler, gc)
 
 	PS_SANITY_CHECK_IS_OPEN;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &maxlifetime) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &maxlifetime) == FAILURE) {
 		return;
 	}
-	
-	RETURN_BOOL(SUCCESS == PS(default_mod)->s_gc(&PS(mod_data), maxlifetime, &nrdels TSRMLS_CC));
+
+	RETURN_BOOL(SUCCESS == PS(default_mod)->s_gc(&PS(mod_data), maxlifetime, &nrdels));
 }
 /* }}} */
 
@@ -150,7 +150,7 @@ PHP_METHOD(SessionHandler, create_sid)
 	    return;
 	}
 
-	id = PS(default_mod)->s_create_sid(&PS(mod_data) TSRMLS_CC);
+	id = PS(default_mod)->s_create_sid(&PS(mod_data));
 
 	RETURN_STR(id);
 }

@@ -1,8 +1,8 @@
-/* 
+/*
  *    PHP Sendmail for Windows.
  *
  *  This file is rewriten specificly for PHPFI.  Some functionality
- *  has been removed (MIME and file attachments).  This code was 
+ *  has been removed (MIME and file attachments).  This code was
  *  modified from code based on code written by Jarle Aase.
  *
  *  This class is based on the original code by Jarle Aase, see bellow:
@@ -151,11 +151,11 @@ static char *ErrorMessages[] =
  * Returns NULL on error, or the new char* buffer on success.
  * You have to take care and efree() the buffer on your own.
  */
-static zend_string *php_win32_mail_trim_header(char *header TSRMLS_DC)
+static zend_string *php_win32_mail_trim_header(char *header)
 {
 
 #if HAVE_PCRE || HAVE_BUNDLED_PCRE
-	
+
 	zend_string *result, *result2;
 	zval replace;
 	zend_string *regex;
@@ -165,16 +165,14 @@ static zend_string *php_win32_mail_trim_header(char *header TSRMLS_DC)
 	}
 
 	ZVAL_STRINGL(&replace, PHP_WIN32_MAIL_UNIFY_REPLACE, strlen(PHP_WIN32_MAIL_UNIFY_REPLACE));
-	regex = zend_string_init(PHP_WIN32_MAIL_UNIFY_REPLACE, sizeof(PHP_WIN32_MAIL_UNIFY_REPLACE)-1, 0);
-
-//zend_string *php_pcre_replace(zend_string *regex, char *subject, int subject_len, zval *replace_val, int is_callable_replace, int limit, int *replace_count TSRMLS_DC);
+	regex = zend_string_init(PHP_WIN32_MAIL_UNIFY_PATTERN, sizeof(PHP_WIN32_MAIL_UNIFY_PATTERN)-1, 0);
 
 	result = php_pcre_replace(regex,
-							  header, (int)strlen(header),
-							  &replace,
-							  0,
-							  -1,
-							  NULL TSRMLS_CC);
+				  header, (int)strlen(header),
+				  &replace,
+				  0,
+				  -1,
+				  NULL);
 
 	if (NULL == result) {
 		zval_ptr_dtor(&replace);
@@ -186,11 +184,11 @@ static zend_string *php_win32_mail_trim_header(char *header TSRMLS_DC)
 	regex = zend_string_init(PHP_WIN32_MAIL_RMVDBL_PATTERN, sizeof(PHP_WIN32_MAIL_RMVDBL_PATTERN)-1, 0);
 
 	result2 = php_pcre_replace(regex,
-							   result->val, (int)result->len,
-							   &replace,
-							  0,
-							  -1,
-							  NULL TSRMLS_CC);
+				   result->val, (int)result->len,
+				   &replace,
+				  0,
+				  -1,
+				  NULL);
 	return result;
 #else
 	/* In case we don't have PCRE support (for whatever reason...) simply do nothing and return the unmodified header */
@@ -213,7 +211,7 @@ static zend_string *php_win32_mail_trim_header(char *header TSRMLS_DC)
 //********************************************************************/
 PHPAPI int TSendMail(char *host, int *error, char **error_message,
 			  char *headers, char *Subject, char *mailTo, char *data,
-			  char *mailCc, char *mailBcc, char *mailRPath TSRMLS_DC)
+			  char *mailCc, char *mailBcc, char *mailRPath)
 {
 	int ret;
 	char *RPath = NULL;
@@ -240,7 +238,7 @@ PHPAPI int TSendMail(char *host, int *error, char **error_message,
 		zend_string *headers_trim;
 
 		/* Use PCRE to trim the header into the right format */
-		if (NULL == (headers_trim = php_win32_mail_trim_header(headers TSRMLS_CC))) {
+		if (NULL == (headers_trim = php_win32_mail_trim_header(headers))) {
 			*error = W32_SM_PCRE_ERROR;
 			return FAILURE;
 		}
@@ -255,7 +253,7 @@ PHPAPI int TSendMail(char *host, int *error, char **error_message,
 			headers_lc->val[i] = tolower(headers_lc->val[i]);
 		}
 	}
- 
+
 	/* Fall back to sendmail_from php.ini setting */
 	if (mailRPath && *mailRPath) {
 		RPath = estrdup(mailRPath);
@@ -266,7 +264,7 @@ PHPAPI int TSendMail(char *host, int *error, char **error_message,
 				((pos1 == headers_lc->val) || (*(pos1-1) == '\n'))
 	) {
 		/* Real offset is memaddress from the original headers + difference of
-		 * string found in the lowercase headrs + 5 characters to jump over   
+		 * string found in the lowercase headrs + 5 characters to jump over
 		 * the from: */
 		pos1 = headers + (pos1 - headers_lc->val) + 5;
 		if (NULL == (pos2 = strstr(pos1, "\r\n"))) {
@@ -302,7 +300,7 @@ PHPAPI int TSendMail(char *host, int *error, char **error_message,
 			MailHost, !INI_INT("smtp_port") ? 25 : INI_INT("smtp_port"));
 		return FAILURE;
 	} else {
-		ret = SendText(RPath, Subject, mailTo, mailCc, mailBcc, data, headers, headers_lc->val, error_message TSRMLS_CC);
+		ret = SendText(RPath, Subject, mailTo, mailCc, mailBcc, data, headers, headers_lc->val, error_message);
 		TSMClose();
 		if (RPath) {
 			efree(RPath);
@@ -331,12 +329,12 @@ PHPAPI void TSMClose()
 {
 	Post("QUIT\r\n");
 	Ack(NULL);
-	/* to guarantee that the cleanup is not made twice and 
+	/* to guarantee that the cleanup is not made twice and
 	   compomise the rest of the application if sockets are used
-	   elesewhere 
+	   elesewhere
 	*/
 
-	shutdown(sc, 0); 
+	shutdown(sc, 0);
 	closesocket(sc);
 }
 
@@ -362,7 +360,7 @@ PHPAPI char *GetSMErrorText(int index)
 
 PHPAPI zend_string *php_str_to_str(char *haystack, size_t length, char *needle,
 		size_t needle_len, char *str, size_t str_len);
-	
+
 
 /*********************************************************************
 // Name:  SendText
@@ -382,8 +380,8 @@ PHPAPI zend_string *php_str_to_str(char *haystack, size_t length, char *needle,
 // Author/Date:  jcar 20/9/96
 // History:
 //*******************************************************************/
-static int SendText(char *RPath, char *Subject, char *mailTo, char *mailCc, char *mailBcc, char *data, 
-			 char *headers, char *headers_lc, char **error_message TSRMLS_DC)
+static int SendText(char *RPath, char *Subject, char *mailTo, char *mailCc, char *mailBcc, char *data,
+			 char *headers, char *headers_lc, char **error_message)
 {
 	int res;
 	char *p;
@@ -608,9 +606,9 @@ static int SendText(char *RPath, char *Subject, char *mailTo, char *mailCc, char
 
 	/* send message header */
 	if (Subject == NULL) {
-		res = PostHeader(RPath, "No Subject", mailTo, stripped_header TSRMLS_CC);
+		res = PostHeader(RPath, "No Subject", mailTo, stripped_header);
 	} else {
-		res = PostHeader(RPath, Subject, mailTo, stripped_header TSRMLS_CC);
+		res = PostHeader(RPath, Subject, mailTo, stripped_header);
 	}
 	if (stripped_header) {
 		efree(stripped_header);
@@ -683,7 +681,7 @@ static int addToHeader(char **header_buffer, const char *specifier, char *string
 // Author/Date:  jcar 20/9/96
 // History:
 //********************************************************************/
-static int PostHeader(char *RPath, char *Subject, char *mailTo, char *xheaders TSRMLS_DC)
+static int PostHeader(char *RPath, char *Subject, char *mailTo, char *xheaders)
 {
 	/* Print message header according to RFC 822 */
 	/* Return-path, Received, Date, From, Subject, Sender, To, cc */
@@ -706,7 +704,7 @@ static int PostHeader(char *RPath, char *Subject, char *mailTo, char *xheaders T
 
 	if (!xheaders || !strstr(headers_lc, "date:")) {
 		time_t tNow = time(NULL);
-		zend_string *dt = php_format_date("r", 1, tNow, 1 TSRMLS_CC);
+		zend_string *dt = php_format_date("r", 1, tNow, 1);
 
 		snprintf(header_buffer, MAIL_BUFFER_SIZE, "Date: %s\r\n", dt->val);
 		zend_string_free(dt);
@@ -896,7 +894,7 @@ again:
 
 	/* Check for newline */
 	Index += rlen;
-	
+
 	/* SMPT RFC says \r\n is the only valid line ending, who are we to argue ;)
 	 * The response code must contain at least 5 characters ex. 220\r\n */
 	if (Received < 5 || buf[Received - 1] != '\n' || buf[Received - 2] != '\r') {
@@ -966,14 +964,14 @@ static unsigned long GetAddr(LPSTR szHost)
 
 /*********************************************************************
 // Name:  int FormatEmailAddress
-// Input: 
+// Input:
 // Output:
 // Description: Formats the email address to remove any content ouside
 //   of the angle brackets < > as per RFC 2821.
 //
-//   Returns the invalidly formatted mail address if the < > are 
+//   Returns the invalidly formatted mail address if the < > are
 //   unbalanced (the SMTP server should reject it if it's out of spec.)
-//  
+//
 // Author/Date:  garretts 08/18/2009
 // History:
 //********************************************************************/
@@ -986,6 +984,6 @@ static int FormatEmailAddress(char* Buf, char* EmailAddress, char* FormatString)
 		result = snprintf(Buf, MAIL_BUFFER_SIZE, FormatString , tmpAddress1+1);
 		*tmpAddress2 = '>'; // put it back the way it was.
 		return result;
-	} 
+	}
 	return snprintf(Buf, MAIL_BUFFER_SIZE , FormatString , EmailAddress );
 } /* end FormatEmailAddress() */

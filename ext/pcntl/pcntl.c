@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2014 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -198,7 +198,7 @@ ZEND_GET_MODULE(pcntl)
 
 static void pcntl_signal_handler(int);
 static void pcntl_signal_dispatch();
-  
+
 void php_register_signal_constants(INIT_FUNC_ARGS)
 {
 
@@ -234,7 +234,7 @@ void php_register_signal_constants(INIT_FUNC_ARGS)
 	REGISTER_LONG_CONSTANT("SIGTERM",  (zend_long) SIGTERM, CONST_CS | CONST_PERSISTENT);
 #ifdef SIGSTKFLT
 	REGISTER_LONG_CONSTANT("SIGSTKFLT",(zend_long) SIGSTKFLT, CONST_CS | CONST_PERSISTENT);
-#endif 
+#endif
 #ifdef SIGCLD
 	REGISTER_LONG_CONSTANT("SIGCLD",   (zend_long) SIGCLD, CONST_CS | CONST_PERSISTENT);
 #endif
@@ -484,7 +484,7 @@ static void php_pcntl_register_errno_constants(INIT_FUNC_ARGS)
 }
 
 static PHP_GINIT_FUNCTION(pcntl)
-{ 
+{
 	memset(pcntl_globals, 0, sizeof(*pcntl_globals));
 }
 
@@ -499,7 +499,7 @@ PHP_MINIT_FUNCTION(pcntl)
 {
 	php_register_signal_constants(INIT_FUNC_ARGS_PASSTHRU);
 	php_pcntl_register_errno_constants(INIT_FUNC_ARGS_PASSTHRU);
-	php_add_tick_function(pcntl_signal_dispatch TSRMLS_CC);
+	php_add_tick_function(pcntl_signal_dispatch);
 
 	return SUCCESS;
 }
@@ -545,9 +545,9 @@ PHP_FUNCTION(pcntl_fork)
 	id = fork();
 	if (id == -1) {
 		PCNTL_G(last_error) = errno;
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error %d", errno);
+		php_error_docref(NULL, E_WARNING, "Error %d", errno);
 	}
-	
+
 	RETURN_LONG((zend_long) id);
 }
 /* }}} */
@@ -558,9 +558,9 @@ PHP_FUNCTION(pcntl_alarm)
 {
 	zend_long seconds;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &seconds) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &seconds) == FAILURE)
 		return;
-	
+
 	RETURN_LONG ((zend_long) alarm(seconds));
 }
 /* }}} */
@@ -574,9 +574,9 @@ PHP_FUNCTION(pcntl_waitpid)
 	int status;
 	pid_t child_id;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz/|l", &pid, &z_status, &options) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "lz/|l", &pid, &z_status, &options) == FAILURE)
 		return;
-	
+
 	convert_to_long_ex(z_status);
 
 	status = Z_LVAL_P(z_status);
@@ -602,9 +602,9 @@ PHP_FUNCTION(pcntl_wait)
 	int status;
 	pid_t child_id;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z/|l", &z_status, &options) == FAILURE)
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z/|l", &z_status, &options) == FAILURE)
 		return;
-	
+
 	convert_to_long_ex(z_status);
 
 	status = Z_LVAL_P(z_status);
@@ -628,14 +628,14 @@ PHP_FUNCTION(pcntl_wait)
 }
 /* }}} */
 
-/* {{{ proto bool pcntl_wifexited(int status) 
+/* {{{ proto bool pcntl_wifexited(int status)
    Returns true if the child status code represents a successful exit */
 PHP_FUNCTION(pcntl_wifexited)
 {
 #ifdef WIFEXITED
 	zend_long status_word;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &status_word) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &status_word) == FAILURE) {
 	       return;
 	}
 
@@ -646,14 +646,14 @@ PHP_FUNCTION(pcntl_wifexited)
 }
 /* }}} */
 
-/* {{{ proto bool pcntl_wifstopped(int status) 
+/* {{{ proto bool pcntl_wifstopped(int status)
    Returns true if the child status code represents a stopped process (WUNTRACED must have been used with waitpid) */
 PHP_FUNCTION(pcntl_wifstopped)
 {
 #ifdef WIFSTOPPED
 	zend_long status_word;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &status_word) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &status_word) == FAILURE) {
 	       return;
 	}
 
@@ -664,14 +664,14 @@ PHP_FUNCTION(pcntl_wifstopped)
 }
 /* }}} */
 
-/* {{{ proto bool pcntl_wifsignaled(int status) 
+/* {{{ proto bool pcntl_wifsignaled(int status)
    Returns true if the child status code represents a process that was terminated due to a signal */
 PHP_FUNCTION(pcntl_wifsignaled)
 {
 #ifdef WIFSIGNALED
 	zend_long status_word;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &status_word) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &status_word) == FAILURE) {
 	       return;
 	}
 
@@ -682,14 +682,14 @@ PHP_FUNCTION(pcntl_wifsignaled)
 }
 /* }}} */
 
-/* {{{ proto int pcntl_wexitstatus(int status) 
+/* {{{ proto int pcntl_wexitstatus(int status)
    Returns the status code of a child's exit */
 PHP_FUNCTION(pcntl_wexitstatus)
 {
 #ifdef WEXITSTATUS
 	zend_long status_word;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &status_word) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &status_word) == FAILURE) {
 	       return;
 	}
 
@@ -700,14 +700,14 @@ PHP_FUNCTION(pcntl_wexitstatus)
 }
 /* }}} */
 
-/* {{{ proto int pcntl_wtermsig(int status) 
+/* {{{ proto int pcntl_wtermsig(int status)
    Returns the number of the signal that terminated the process who's status code is passed  */
 PHP_FUNCTION(pcntl_wtermsig)
 {
 #ifdef WTERMSIG
 	zend_long status_word;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &status_word) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &status_word) == FAILURE) {
 	       return;
 	}
 
@@ -718,14 +718,14 @@ PHP_FUNCTION(pcntl_wtermsig)
 }
 /* }}} */
 
-/* {{{ proto int pcntl_wstopsig(int status) 
+/* {{{ proto int pcntl_wstopsig(int status)
    Returns the number of the signal that caused the process to stop who's status code is passed */
 PHP_FUNCTION(pcntl_wstopsig)
 {
 #ifdef WSTOPSIG
 	zend_long status_word;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &status_word) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &status_word) == FAILURE) {
 	       return;
 	}
 
@@ -752,16 +752,16 @@ PHP_FUNCTION(pcntl_exec)
 	char *path;
 	size_t path_len;
 	zend_ulong key_num;
-		
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|aa", &path, &path_len, &args, &envs) == FAILURE) {
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "s|aa", &path, &path_len, &args, &envs) == FAILURE) {
 		return;
 	}
-	
+
 	if (ZEND_NUM_ARGS() > 1) {
 		/* Build argument list */
 		args_hash = HASH_OF(args);
 		argc = zend_hash_num_elements(args_hash);
-		
+
 		argv = safe_emalloc((argc + 2), sizeof(char *), 0);
 		*argv = path;
 		current_arg = argv+1;
@@ -783,8 +783,8 @@ PHP_FUNCTION(pcntl_exec)
 		/* Build environment pair list */
 		envs_hash = HASH_OF(envs);
 		envc = zend_hash_num_elements(envs_hash);
-		
-		pair = envp = safe_emalloc((envc + 1), sizeof(char *), 0);		
+
+		pair = envp = safe_emalloc((envc + 1), sizeof(char *), 0);
 		ZEND_HASH_FOREACH_KEY_VAL(envs_hash, key_num, key, element) {
 			if (envi >= envc) break;
 			if (!key) {
@@ -795,13 +795,13 @@ PHP_FUNCTION(pcntl_exec)
 
 			convert_to_string_ex(element);
 
-			/* Length of element + equal sign + length of key + null */ 
+			/* Length of element + equal sign + length of key + null */
 			pair_length = Z_STRLEN_P(element) + key->len + 2;
 			*pair = emalloc(pair_length);
-			strlcpy(*pair, key->val, key->len + 1); 
+			strlcpy(*pair, key->val, key->len + 1);
 			strlcat(*pair, "=", pair_length);
 			strlcat(*pair, Z_STRVAL_P(element), pair_length);
-			
+
 			/* Cleanup */
 			zend_string_release(key);
 			envi++;
@@ -811,9 +811,9 @@ PHP_FUNCTION(pcntl_exec)
 
 		if (execve(path, argv, envp) == -1) {
 			PCNTL_G(last_error) = errno;
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error has occurred: (errno %d) %s", errno, strerror(errno));
+			php_error_docref(NULL, E_WARNING, "Error has occurred: (errno %d) %s", errno, strerror(errno));
 		}
-	
+
 		/* Cleanup */
 		for (pair = envp; *pair != NULL; pair++) efree(*pair);
 		efree(envp);
@@ -821,12 +821,12 @@ PHP_FUNCTION(pcntl_exec)
 
 		if (execv(path, argv) == -1) {
 			PCNTL_G(last_error) = errno;
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error has occurred: (errno %d) %s", errno, strerror(errno));
+			php_error_docref(NULL, E_WARNING, "Error has occurred: (errno %d) %s", errno, strerror(errno));
 		}
 	}
 
 	efree(argv);
-	
+
 	RETURN_FALSE;
 }
 /* }}} */
@@ -840,12 +840,12 @@ PHP_FUNCTION(pcntl_signal)
 	zend_long signo;
 	zend_bool restart_syscalls = 1;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "lz|b", &signo, &handle, &restart_syscalls) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "lz|b", &signo, &handle, &restart_syscalls) == FAILURE) {
 		return;
 	}
 
 	if (signo < 1 || signo > 32) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid signal");
+		php_error_docref(NULL, E_WARNING, "Invalid signal");
 		RETURN_FALSE;
 	}
 
@@ -865,33 +865,34 @@ PHP_FUNCTION(pcntl_signal)
 	/* Special long value case for SIG_DFL and SIG_IGN */
 	if (Z_TYPE_P(handle) == IS_LONG) {
 		if (Z_LVAL_P(handle) != (zend_long) SIG_DFL && Z_LVAL_P(handle) != (zend_long) SIG_IGN) {
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Invalid value for handle argument specified");
+			php_error_docref(NULL, E_WARNING, "Invalid value for handle argument specified");
 			RETURN_FALSE;
 		}
 		if (php_signal(signo, (Sigfunc *) Z_LVAL_P(handle), (int) restart_syscalls) == SIG_ERR) {
 			PCNTL_G(last_error) = errno;
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error assigning signal");
+			php_error_docref(NULL, E_WARNING, "Error assigning signal");
 			RETURN_FALSE;
 		}
+		zend_hash_index_del(&PCNTL_G(php_signal_table), signo);
 		RETURN_TRUE;
 	}
-	
-	if (!zend_is_callable(handle, 0, &func_name TSRMLS_CC)) {
+
+	if (!zend_is_callable(handle, 0, &func_name)) {
 		PCNTL_G(last_error) = EINVAL;
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s is not a callable function name error", func_name->val);
+		php_error_docref(NULL, E_WARNING, "%s is not a callable function name error", func_name->val);
 		zend_string_release(func_name);
 		RETURN_FALSE;
 	}
 	zend_string_release(func_name);
-	
+
 	/* Add the function name to our signal table */
 	if (zend_hash_index_update(&PCNTL_G(php_signal_table), signo, handle)) {
 		if (Z_REFCOUNTED_P(handle)) Z_ADDREF_P(handle);
 	}
-	
+
 	if (php_signal4(signo, pcntl_signal_handler, (int) restart_syscalls, 1) == SIG_ERR) {
 		PCNTL_G(last_error) = errno;
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error assigning signal");
+		php_error_docref(NULL, E_WARNING, "Error assigning signal");
 		RETURN_FALSE;
 	}
 	RETURN_TRUE;
@@ -916,13 +917,13 @@ PHP_FUNCTION(pcntl_sigprocmask)
 	zval         *user_set, *user_oldset = NULL, *user_signo;
 	sigset_t      set, oldset;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "la|z/", &how, &user_set, &user_oldset) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "la|z/", &how, &user_set, &user_oldset) == FAILURE) {
 		return;
 	}
 
 	if (sigemptyset(&set) != 0 || sigemptyset(&oldset) != 0) {
 		PCNTL_G(last_error) = errno;
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", strerror(errno));
+		php_error_docref(NULL, E_WARNING, "%s", strerror(errno));
 		RETURN_FALSE;
 	}
 
@@ -934,14 +935,14 @@ PHP_FUNCTION(pcntl_sigprocmask)
 		signo = Z_LVAL_P(user_signo);
 		if (sigaddset(&set, signo) != 0) {
 			PCNTL_G(last_error) = errno;
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", strerror(errno));
+			php_error_docref(NULL, E_WARNING, "%s", strerror(errno));
 			RETURN_FALSE;
 		}
 	} ZEND_HASH_FOREACH_END();
 
 	if (sigprocmask(how, &set, &oldset) != 0) {
 		PCNTL_G(last_error) = errno;
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", strerror(errno));
+		php_error_docref(NULL, E_WARNING, "%s", strerror(errno));
 		RETURN_FALSE;
 	}
 
@@ -976,18 +977,18 @@ static void pcntl_sigwaitinfo(INTERNAL_FUNCTION_PARAMETERS, int timedwait) /* {{
 	struct timespec  timeout;
 
 	if (timedwait) {
-		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|z/ll", &user_set, &user_siginfo, &tv_sec, &tv_nsec) == FAILURE) {
+		if (zend_parse_parameters(ZEND_NUM_ARGS(), "a|z/ll", &user_set, &user_siginfo, &tv_sec, &tv_nsec) == FAILURE) {
 			return;
 		}
 	} else {
-		if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|z/", &user_set, &user_siginfo) == FAILURE) {
+		if (zend_parse_parameters(ZEND_NUM_ARGS(), "a|z/", &user_set, &user_siginfo) == FAILURE) {
 			return;
 		}
 	}
 
 	if (sigemptyset(&set) != 0) {
 		PCNTL_G(last_error) = errno;
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", strerror(errno));
+		php_error_docref(NULL, E_WARNING, "%s", strerror(errno));
 		RETURN_FALSE;
 	}
 
@@ -999,7 +1000,7 @@ static void pcntl_sigwaitinfo(INTERNAL_FUNCTION_PARAMETERS, int timedwait) /* {{
 		signo = Z_LVAL_P(user_signo);
 		if (sigaddset(&set, signo) != 0) {
 			PCNTL_G(last_error) = errno;
-			php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", strerror(errno));
+			php_error_docref(NULL, E_WARNING, "%s", strerror(errno));
 			RETURN_FALSE;
 		}
 	} ZEND_HASH_FOREACH_END();
@@ -1013,11 +1014,11 @@ static void pcntl_sigwaitinfo(INTERNAL_FUNCTION_PARAMETERS, int timedwait) /* {{
 	}
 	if (signo == -1 && errno != EAGAIN) {
 		PCNTL_G(last_error) = errno;
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "%s", strerror(errno));
+		php_error_docref(NULL, E_WARNING, "%s", strerror(errno));
 	}
 
 	/*
-	 * sigtimedwait and sigwaitinfo can return 0 on success on some 
+	 * sigtimedwait and sigwaitinfo can return 0 on success on some
 	 * platforms, e.g. NetBSD
 	 */
 	if (!signo && siginfo.si_signo) {
@@ -1064,7 +1065,7 @@ static void pcntl_sigwaitinfo(INTERNAL_FUNCTION_PARAMETERS, int timedwait) /* {{
 #endif
 		}
 	}
-	
+
 	RETURN_LONG(signo);
 }
 /* }}} */
@@ -1094,12 +1095,12 @@ PHP_FUNCTION(pcntl_getpriority)
 	zend_long who = PRIO_PROCESS;
 	zend_long pid = getpid();
 	int pri;
-	
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|ll", &pid, &who) == FAILURE) {
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|ll", &pid, &who) == FAILURE) {
 		RETURN_FALSE;
 	}
 
-	/* needs to be cleared, since any returned value is valid */ 
+	/* needs to be cleared, since any returned value is valid */
 	errno = 0;
 
 	pri = getpriority(who, pid);
@@ -1108,13 +1109,13 @@ PHP_FUNCTION(pcntl_getpriority)
 		PCNTL_G(last_error) = errno;
 		switch (errno) {
 			case ESRCH:
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error %d: No process was located using the given parameters", errno);
+				php_error_docref(NULL, E_WARNING, "Error %d: No process was located using the given parameters", errno);
 				break;
 			case EINVAL:
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error %d: Invalid identifier flag", errno);
+				php_error_docref(NULL, E_WARNING, "Error %d: Invalid identifier flag", errno);
 				break;
 			default:
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unknown error %d has occurred", errno);
+				php_error_docref(NULL, E_WARNING, "Unknown error %d has occurred", errno);
 				break;
 		}
 		RETURN_FALSE;
@@ -1134,7 +1135,7 @@ PHP_FUNCTION(pcntl_setpriority)
 	zend_long pid = getpid();
 	zend_long pri;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l|ll", &pri, &pid, &who) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l|ll", &pri, &pid, &who) == FAILURE) {
 		RETURN_FALSE;
 	}
 
@@ -1142,24 +1143,24 @@ PHP_FUNCTION(pcntl_setpriority)
 		PCNTL_G(last_error) = errno;
 		switch (errno) {
 			case ESRCH:
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error %d: No process was located using the given parameters", errno);
+				php_error_docref(NULL, E_WARNING, "Error %d: No process was located using the given parameters", errno);
 				break;
 			case EINVAL:
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error %d: Invalid identifier flag", errno);
+				php_error_docref(NULL, E_WARNING, "Error %d: Invalid identifier flag", errno);
 				break;
 			case EPERM:
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error %d: A process was located, but neither its effective nor real user ID matched the effective user ID of the caller", errno);
+				php_error_docref(NULL, E_WARNING, "Error %d: A process was located, but neither its effective nor real user ID matched the effective user ID of the caller", errno);
 				break;
 			case EACCES:
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Error %d: Only a super user may attempt to increase the process priority", errno);
+				php_error_docref(NULL, E_WARNING, "Error %d: Only a super user may attempt to increase the process priority", errno);
 				break;
 			default:
-				php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unknown error %d has occurred", errno);
+				php_error_docref(NULL, E_WARNING, "Unknown error %d has occurred", errno);
 				break;
 		}
 		RETURN_FALSE;
 	}
-	
+
 	RETURN_TRUE;
 }
 /* }}} */
@@ -1179,7 +1180,7 @@ PHP_FUNCTION(pcntl_strerror)
 {
         zend_long error;
 
-        if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &error) == FAILURE) {
+        if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &error) == FAILURE) {
                 RETURN_FALSE;
         }
 
@@ -1191,8 +1192,7 @@ PHP_FUNCTION(pcntl_strerror)
 static void pcntl_signal_handler(int signo)
 {
 	struct php_pcntl_pending_signal *psig;
-	TSRMLS_FETCH();
-	
+
 	psig = PCNTL_G(spares);
 	if (!psig) {
 		/* oops, too many signals for us to track, so we'll forget about this one */
@@ -1211,6 +1211,7 @@ static void pcntl_signal_handler(int signo)
 		PCNTL_G(head) = psig;
 	}
 	PCNTL_G(tail) = psig;
+	PCNTL_G(pending_signals) = 1;
 }
 
 void pcntl_signal_dispatch()
@@ -1219,8 +1220,11 @@ void pcntl_signal_dispatch()
 	struct php_pcntl_pending_signal *queue, *next;
 	sigset_t mask;
 	sigset_t old_mask;
-	TSRMLS_FETCH();
-		
+
+	if(!PCNTL_G(pending_signals)) {
+		return;
+	}
+
 	/* Mask all signals */
 	sigfillset(&mask);
 	sigprocmask(SIG_BLOCK, &mask, &old_mask);
@@ -1236,7 +1240,7 @@ void pcntl_signal_dispatch()
 
 	queue = PCNTL_G(head);
 	PCNTL_G(head) = NULL; /* simple stores are atomic */
-	
+
 	/* Allocate */
 
 	while (queue) {
@@ -1246,7 +1250,7 @@ void pcntl_signal_dispatch()
 
 			/* Call php signal handler - Note that we do not report errors, and we ignore the return value */
 			/* FIXME: this is probably broken when multiple signals are handled in this while loop (retval) */
-			call_user_function(EG(function_table), NULL, handle, &retval, 1, &param TSRMLS_CC);
+			call_user_function(EG(function_table), NULL, handle, &retval, 1, &param);
 			zval_ptr_dtor(&param);
 			zval_ptr_dtor(&retval);
 		}
@@ -1257,9 +1261,11 @@ void pcntl_signal_dispatch()
 		queue = next;
 	}
 
+	PCNTL_G(pending_signals) = 0;
+
 	/* Re-enable queue */
 	PCNTL_G(processing_signal_queue) = 0;
-	
+
 	/* return signal mask to previous state */
 	sigprocmask(SIG_SETMASK, &old_mask, NULL);
 }

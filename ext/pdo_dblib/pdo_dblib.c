@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2014 The PHP Group                                |
+  | Copyright (c) 1997-2015 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -91,19 +91,18 @@ int pdo_dblib_error_handler(DBPROCESS *dbproc, int severity, int dberr,
 {
 	pdo_dblib_err *einfo;
 	char *state = "HY000";
-	TSRMLS_FETCH();
 
 	if(dbproc) {
 		einfo = (pdo_dblib_err*)dbgetuserdata(dbproc);
 		if (!einfo) einfo = &DBLIB_G(err);
 	} else {
 		einfo = &DBLIB_G(err);
-	}	
+	}
 
 	einfo->severity = severity;
 	einfo->oserr = oserr;
 	einfo->dberr = dberr;
-	
+
 	if (einfo->oserrstr) {
 		efree(einfo->oserrstr);
 	}
@@ -136,7 +135,6 @@ int pdo_dblib_msg_handler(DBPROCESS *dbproc, DBINT msgno, int msgstate,
 	int severity, char *msgtext, char *srvname, char *procname, DBUSMALLINT line)
 {
 	pdo_dblib_err *einfo;
-	TSRMLS_FETCH();
 
 	if (severity) {
 		einfo = (pdo_dblib_err*)dbgetuserdata(dbproc);
@@ -182,11 +180,11 @@ PHP_MINIT_FUNCTION(pdo_dblib)
 	if (FAIL == dbinit()) {
 		return FAILURE;
 	}
-	
+
 	if (FAILURE == php_pdo_register_driver(&pdo_dblib_driver)) {
 		return FAILURE;
 	}
-	
+
 #if !PHP_DBLIB_IS_MSSQL
 	dberrhandle((EHANDLEFUNC) pdo_dblib_error_handler);
 	dbmsghandle((MHANDLEFUNC) pdo_dblib_msg_handler);

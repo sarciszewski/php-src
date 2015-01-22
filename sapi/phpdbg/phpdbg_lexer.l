@@ -27,7 +27,7 @@
 
 ZEND_EXTERN_MODULE_GLOBALS(phpdbg);
 
-void phpdbg_init_lexer (phpdbg_param_t *stack, char *input TSRMLS_DC) {
+void phpdbg_init_lexer (phpdbg_param_t *stack, char *input) {
 	PHPDBG_G(parser_stack) = stack;
 
 	YYSETCONDITION(INITIAL);
@@ -37,7 +37,6 @@ void phpdbg_init_lexer (phpdbg_param_t *stack, char *input TSRMLS_DC) {
 }
 
 int phpdbg_lex (phpdbg_param_t* yylval) {
-	TSRMLS_FETCH(); /* Slow, but this is not a major problem here. TODO: Use TSRMLS_DC */
 
 restart:
 	LEX(text) = YYCURSOR;
@@ -101,7 +100,7 @@ INPUT       [^\n\000]+
 
 <NORMAL>({T_YES}|{T_ON}|{T_ENABLED}|{T_TRUE}){WS} {
 	phpdbg_init_param(yylval, NUMERIC_PARAM);
-	yylval->num = 1;		
+	yylval->num = 1;
 	return T_TRUTHY;
 }
 
@@ -134,7 +133,7 @@ INPUT       [^\n\000]+
 	phpdbg_init_param(yylval, STR_PARAM);
 	yylval->str = zend_strndup(yytext, yyleng);
 	yylval->len = yyleng;
-	return T_ID; 
+	return T_ID;
 }
 
 <RAW>{INPUT} {

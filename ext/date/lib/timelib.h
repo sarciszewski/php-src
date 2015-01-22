@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2014 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -76,9 +76,9 @@ const timelib_tz_lookup_table *timelib_timezone_abbreviations_list(void);
 timelib_long timelib_parse_tz_cor(char**);
 
 /* From parse_iso_intervals.re */
-void timelib_strtointerval(char *s, size_t len, 
-                           timelib_time **begin, timelib_time **end, 
-						   timelib_rel_time **period, int *recurrences, 
+void timelib_strtointerval(char *s, size_t len,
+                           timelib_time **begin, timelib_time **end,
+						   timelib_rel_time **period, int *recurrences,
 						   struct timelib_error_container **errors);
 
 

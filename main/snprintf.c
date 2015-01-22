@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2014 The PHP Group                                |
+  | Copyright (c) 1997-2015 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -38,7 +38,12 @@
 
 #ifdef HAVE_LOCALE_H
 #include <locale.h>
+#ifdef ZTS
+#include "ext/standard/php_string.h"
+#define LCONV_DECIMAL_POINT (*lconv.decimal_point)
+#else
 #define LCONV_DECIMAL_POINT (*lconv->decimal_point)
+#endif
 #else
 #define LCONV_DECIMAL_POINT '.'
 #endif
@@ -607,7 +612,11 @@ static int format_converter(register buffy * odp, const char *fmt, va_list ap) /
 	char char_buf[2];			/* for printing %% and %<unknown> */
 
 #ifdef HAVE_LOCALE_H
+#ifdef ZTS
+	struct lconv lconv;
+#else
 	struct lconv *lconv = NULL;
+#endif
 #endif
 
 	/*
@@ -693,7 +702,7 @@ static int format_converter(register buffy * odp, const char *fmt, va_list ap) /
 							precision = 0;
 					} else
 						precision = 0;
-					
+
 					if (precision > FORMAT_CONV_MAX_PRECISION) {
 						precision = FORMAT_CONV_MAX_PRECISION;
 					}
@@ -787,9 +796,8 @@ static int format_converter(register buffy * odp, const char *fmt, va_list ap) /
 			 */
 			switch (*fmt) {
 				case 'Z': {
-				    TSRMLS_FETCH();
-				    zvp = (zval*) va_arg(ap, zval*);
-					free_zcopy = zend_make_printable_zval(zvp, &zcopy TSRMLS_CC);
+				    				    zvp = (zval*) va_arg(ap, zval*);
+					free_zcopy = zend_make_printable_zval(zvp, &zcopy);
 					if (free_zcopy) {
 						zvp = &zcopy;
 					}
@@ -797,7 +805,7 @@ static int format_converter(register buffy * odp, const char *fmt, va_list ap) /
 					s = Z_STRVAL_P(zvp);
 					if (adjust_precision && precision < s_len) {
 						s_len = precision;
-					}	
+					}
 					break;
 				}
 				case 'u':
@@ -1017,9 +1025,13 @@ static int format_converter(register buffy * odp, const char *fmt, va_list ap) /
 						s_len = 3;
 					} else {
 #ifdef HAVE_LOCALE_H
+#ifdef ZTS
+						localeconv_r(&lconv);
+#else
 						if (!lconv) {
 							lconv = localeconv();
 						}
+#endif
 #endif
 						s = php_conv_fp((*fmt == 'f')?'F':*fmt, fp_num, alternate_form,
 						 (adjust_precision == NO) ? FLOAT_DIGITS : precision,
@@ -1074,9 +1086,13 @@ static int format_converter(register buffy * odp, const char *fmt, va_list ap) /
 					 * * We use &num_buf[ 1 ], so that we have room for the sign
 					 */
 #ifdef HAVE_LOCALE_H
+#ifdef ZTS
+					localeconv_r(&lconv);
+#else
 					if (!lconv) {
 						lconv = localeconv();
 					}
+#endif
 #endif
 					s = php_gcvt(fp_num, precision, (*fmt=='H' || *fmt == 'k') ? '.' : LCONV_DECIMAL_POINT, (*fmt == 'G' || *fmt == 'H')?'E':'e', &num_buf[1]);
 					if (*s == '-') {

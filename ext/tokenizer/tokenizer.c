@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2014 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -101,7 +101,7 @@ PHP_MINFO_FUNCTION(tokenizer)
 }
 /* }}} */
 
-static void tokenize(zval *return_value TSRMLS_DC)
+static void tokenize(zval *return_value)
 {
 	zval token;
 	zval keyword;
@@ -113,7 +113,7 @@ static void tokenize(zval *return_value TSRMLS_DC)
 	array_init(return_value);
 
 	ZVAL_NULL(&token);
-	while ((token_type = lex_scan(&token TSRMLS_CC))) {
+	while ((token_type = lex_scan(&token))) {
 		destroy = 1;
 		switch (token_type) {
 			case T_CLOSE_TAG:
@@ -181,23 +181,23 @@ PHP_FUNCTION(token_get_all)
 	zval source_zval;
 	zend_lex_state original_lex_state;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &source) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &source) == FAILURE) {
 		return;
 	}
 
 	ZVAL_STR_COPY(&source_zval, source);
-	zend_save_lexical_state(&original_lex_state TSRMLS_CC);
+	zend_save_lexical_state(&original_lex_state);
 
-	if (zend_prepare_string_for_scanning(&source_zval, "" TSRMLS_CC) == FAILURE) {
-		zend_restore_lexical_state(&original_lex_state TSRMLS_CC);
+	if (zend_prepare_string_for_scanning(&source_zval, "") == FAILURE) {
+		zend_restore_lexical_state(&original_lex_state);
 		RETURN_FALSE;
 	}
 
 	LANG_SCNG(yy_state) = yycINITIAL;
 
-	tokenize(return_value TSRMLS_CC);
-	
-	zend_restore_lexical_state(&original_lex_state TSRMLS_CC);
+	tokenize(return_value);
+
+	zend_restore_lexical_state(&original_lex_state);
 	zval_dtor(&source_zval);
 }
 /* }}} */
@@ -208,7 +208,7 @@ PHP_FUNCTION(token_name)
 {
 	zend_long type;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &type) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &type) == FAILURE) {
 		return;
 	}
 

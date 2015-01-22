@@ -4,7 +4,7 @@
  * PostgreSQL Database Management System (formerly known as Postgres, then as
  * Postgres95)
  *
- * Portions Copyright (c) 1996-2014, The PostgreSQL Global Development Group
+ * Portions Copyright (c) 1996-2015, The PostgreSQL Global Development Group
  *
  * Portions Copyright (c) 1994, The Regents of the University of California
  *
@@ -125,7 +125,7 @@ static size_t ps_buffer_cur_len; /* actual string length in ps_buffer */
 static int save_argc;
 static char** save_argv;
 
-/* 
+/*
  * This holds the 'locally' allocated environ from the save_ps_args method.
  * This is subsequently free'd at exit.
  */

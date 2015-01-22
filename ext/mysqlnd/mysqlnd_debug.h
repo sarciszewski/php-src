@@ -2,7 +2,7 @@
   +----------------------------------------------------------------------+
   | PHP Version 7                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 2006-2014 The PHP Group                                |
+  | Copyright (c) 2006-2015 The PHP Group                                |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -45,15 +45,12 @@ struct st_mysqlnd_debug_methods
 struct st_mysqlnd_debug
 {
 	php_stream	*stream;
-#ifdef ZTS
-	TSRMLS_D;
-#endif
 	unsigned int flags;
 	unsigned int nest_level_limit;
 	int pid;
 	char * file_name;
 	zend_stack call_stack;
-	zend_stack call_time_stack;	
+	zend_stack call_time_stack;
 	HashTable not_filtered_functions;
 	HashTable function_profiles;
 	struct st_mysqlnd_debug_methods *m;
@@ -65,13 +62,13 @@ struct st_mysqlnd_plugin_trace_log
 	struct st_mysqlnd_plugin_header plugin_header;
 	struct
 	{
-		MYSQLND_DEBUG * (*trace_instance_init)(const char * skip_functions[] TSRMLS_DC);
+		MYSQLND_DEBUG * (*trace_instance_init)(const char * skip_functions[]);
 	} methods;
 };
 
-void mysqlnd_debug_trace_plugin_register(TSRMLS_D);
+void mysqlnd_debug_trace_plugin_register(void);
 
-PHPAPI MYSQLND_DEBUG * mysqlnd_debug_init(const char * skip_functions[] TSRMLS_DC);
+PHPAPI MYSQLND_DEBUG * mysqlnd_debug_init(const char * skip_functions[]);
 
 
 #if defined(__GNUC__) || (defined(_MSC_VER) && (_MSC_VER >= 1400))
@@ -109,7 +106,7 @@ PHPAPI MYSQLND_DEBUG * mysqlnd_debug_init(const char * skip_functions[] TSRMLS_D
 #define DBG_BLOCK_LEAVE_EX2(dbg_obj1, dbg_obj2) \
 			DBG_LEAVE_EX2((dbg_obj1), (dbg_obj2), ;) \
 		} \
-	
+
 
 #define DBG_ENTER_EX(dbg_obj, func_name)	DBG_ENTER_EX2((dbg_obj), (MYSQLND_DEBUG *) NULL, (func_name))
 #define DBG_LEAVE_EX(dbg_obj, leave)		DBG_LEAVE_EX2((dbg_obj), (MYSQLND_DEBUG *) NULL, leave)
@@ -132,7 +129,7 @@ PHPAPI MYSQLND_DEBUG * mysqlnd_debug_init(const char * skip_functions[] TSRMLS_D
 						{ \
 							DBG_PROFILE_START_TIME(); \
 						} \
-					} while (0); 
+					} while (0);
 
 #define DBG_LEAVE_EX2(dbg_obj1, dbg_obj2, leave)	\
 			do {\

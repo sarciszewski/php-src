@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | Zend Engine                                                          |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1998-2014 Zend Technologies Ltd. (http://www.zend.com) |
+   | Copyright (c) 1998-2015 Zend Technologies Ltd. (http://www.zend.com) |
    +----------------------------------------------------------------------+
    | This source file is subject to version 2.00 of the Zend license,     |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -21,7 +21,11 @@
 #ifndef ZEND_VM_OPCODES_H
 #define ZEND_VM_OPCODES_H
 
+BEGIN_EXTERN_C()
+
 ZEND_API const char *zend_get_opcode_name(zend_uchar opcode);
+
+END_EXTERN_C()
 
 #define ZEND_NOP                               0
 #define ZEND_ADD                               1
@@ -64,7 +68,6 @@ ZEND_API const char *zend_get_opcode_name(zend_uchar opcode);
 #define ZEND_ASSIGN                           38
 #define ZEND_ASSIGN_REF                       39
 #define ZEND_ECHO                             40
-#define ZEND_PRINT                            41
 #define ZEND_JMP                              42
 #define ZEND_JMPZ                             43
 #define ZEND_JMPNZ                            44

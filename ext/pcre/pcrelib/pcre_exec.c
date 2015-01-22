@@ -6,7 +6,7 @@
 and semantics are as close as possible to those of the Perl 5 language.
 
                        Written by Philip Hazel
-           Copyright (c) 1997-2014 University of Cambridge
+           Copyright (c) 1997-2015 University of Cambridge
 
 -----------------------------------------------------------------------------
 Redistribution and use in source and binary forms, with or without
@@ -1038,7 +1038,7 @@ for (;;)
     the result of a recursive call to match() whatever happened so it was
     possible to reduce stack usage by turning this into a tail recursion,
     except in the case of a possibly empty group. However, now that there is
-    the possiblity of (*THEN) occurring in the final alternative, this
+    the possibility of (*THEN) occurring in the final alternative, this
     optimization is no longer always possible.
 
     We can optimize if we know there are no (*THEN)s in the pattern; at present

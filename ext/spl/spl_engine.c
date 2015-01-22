@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2014 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -32,7 +32,7 @@
 #include "spl_array.h"
 
 /* {{{ spl_instantiate */
-PHPAPI void spl_instantiate(zend_class_entry *pce, zval *object TSRMLS_DC)
+PHPAPI void spl_instantiate(zend_class_entry *pce, zval *object)
 {
 	object_init_ex(object, pce);
 	Z_SET_REFCOUNT_P(object, 1);
@@ -40,7 +40,7 @@ PHPAPI void spl_instantiate(zend_class_entry *pce, zval *object TSRMLS_DC)
 }
 /* }}} */
 
-PHPAPI zend_long spl_offset_convert_to_long(zval *offset TSRMLS_DC) /* {{{ */
+PHPAPI zend_long spl_offset_convert_to_long(zval *offset) /* {{{ */
 {
 	zend_ulong idx;
 
@@ -62,7 +62,7 @@ PHPAPI zend_long spl_offset_convert_to_long(zval *offset TSRMLS_DC) /* {{{ */
 		return Z_RES_HANDLE_P(offset);
 	}
 	return -1;
-} 
+}
 /* }}} */
 
 /*

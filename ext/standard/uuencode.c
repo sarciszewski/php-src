@@ -2,7 +2,7 @@
    +----------------------------------------------------------------------+
    | PHP Version 7                                                        |
    +----------------------------------------------------------------------+
-   | Copyright (c) 1997-2014 The PHP Group                                |
+   | Copyright (c) 1997-2015 The PHP Group                                |
    +----------------------------------------------------------------------+
    | This source file is subject to version 3.01 of the PHP license,      |
    | that is bundled with this package in the file LICENSE, and is        |
@@ -158,7 +158,7 @@ PHPAPI zend_string *php_uudecode(char *src, size_t src_len) /* {{{ */
 		while (s < ee) {
 			if(s+4 > e) {
 				goto err;
-			} 
+			}
 			*p++ = PHP_UU_DEC(*s) << 2 | PHP_UU_DEC(*(s + 1)) >> 4;
 			*p++ = PHP_UU_DEC(*(s + 1)) << 4 | PHP_UU_DEC(*(s + 2)) >> 2;
 			*p++ = PHP_UU_DEC(*(s + 2)) << 6 | PHP_UU_DEC(*(s + 3));
@@ -196,13 +196,13 @@ err:
 }
 /* }}} */
 
-/* {{{ proto string convert_uuencode(string data) 
+/* {{{ proto string convert_uuencode(string data)
    uuencode a string */
 PHP_FUNCTION(convert_uuencode)
 {
 	zend_string *src;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &src) == FAILURE || src->len < 1) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &src) == FAILURE || src->len < 1) {
 		RETURN_FALSE;
 	}
 
@@ -217,12 +217,12 @@ PHP_FUNCTION(convert_uudecode)
 	zend_string *src;
 	zend_string *dest;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &src) == FAILURE || src->len < 1) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &src) == FAILURE || src->len < 1) {
 		RETURN_FALSE;
 	}
 
 	if ((dest = php_uudecode(src->val, src->len)) == NULL) {
-		php_error_docref(NULL TSRMLS_CC, E_WARNING, "The given parameter is not a valid uuencoded string");
+		php_error_docref(NULL, E_WARNING, "The given parameter is not a valid uuencoded string");
 		RETURN_FALSE;
 	}
 
